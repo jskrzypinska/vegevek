@@ -1,23 +1,15 @@
 import React from "react";
-import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
-import { ProductList } from "./components/ProductList";
-import { cK } from "./WooApi";
-import { cS } from "./WooApi";
 
-const api = new WooCommerceRestApi({
-  url: "https://vegevek.pl",
-  consumerKey: `${cK}`,
-  consumerSecret: `${cS}`,
-  version: "wc/v3",
-  queryStringAuth: true
-});
+import VegevekService from "./vegevekService";
+import { ProductList } from "./components/ProductList";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
+    //this.vegewekService = new VegewekService();
     this.handleDataFetch = this.handleDataFetch.bind(this);
-    this.handleProductChange = this.handleProductChange.bind(this);
-    this.updateProduct = this.updateProduct.bind(this);
+    // this.handleProductChange = this.handleProductChange.bind(this);
+    // this.updateProduct = this.updateProduct.bind(this);
     this.state = {
       products: [],
       isLoaded: false
@@ -25,66 +17,48 @@ class App extends React.Component {
   }
 
   handleDataFetch() {
-    api
-      .get("products", {
-        per_page: 100, // 100 products per page
-        category: 30 // Lokalizacje/Scalac
-      })
-      .then(response => {
-        const products = response.data;
-        console.log(products + "tablica produktow");
-        this.setState({ products, isLoaded: true });
-      })
-      .catch(error => {
-        // Invalid request, for 4xx and 5xx statuses
-        console.log("Response Status:", error.response.status);
-      });
+    VegevekService.getProducts(30, 5).then(products => {
+      console.log("ściągnięto produkty: ", products);
+      this.setState({ products, isLoaded: true });
+    });
   }
 
-  handleProductChange(product) {
-    console.log("handleProductChange", product);
-    this.updateProduct(product);
-  }
+  // handleProductChange(product) {
+  //   console.log("handleProductChange", product);
+  //   this.updateProduct(product);
+  // }
 
-  updateProduct(product) {
-    api
-      .put("products/" + product.id, {
-        stock_quantity: product.stock_quantity
-      })
-      .then(response => {
-        this.handleDataFetch();
-      })
-      .catch(error => {
-        // Invalid request, for 4xx and 5xx statuses
-        console.log("Response Status:", error.response.status);
-      });
-  }
+  // updateProduct(product) {
+  //   api
+  //     .put("products/" + product.id, {
+  //       stock_quantity: product.stock_quantity
+  //     })
+  //     .then(response => {
+  //       this.handleDataFetch();
+  //     })
+  //     .catch(error => {
+  //       // Invalid request, for 4xx and 5xx statuses
+  //       console.log("Response Status:", error.response.status);
+  //     });
+  // }
 
   componentDidMount() {
     this.handleDataFetch();
   }
+
   render() {
     return (
       <div className="ui container">
-        <table className="ui celled table">
-          <thead class="">
-            <tr class="">
-              <th class="">Produkty</th>
-              <th class="">Ilosc</th>
-              <th class="">Akcje</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.isLoaded ? (
-              <ProductList
-                products={this.state.products}
-                onProductChange={this.handleProductChange}
-              />
-            ) : (
-              "Ładowanie"
-            )}
-          </tbody>
-        </table>
+        <ul>
+          {this.state.isLoaded ? (
+            <ProductList
+              products={this.state.products}
+              // onProductChange={this.handleProductChange}
+            />
+          ) : (
+            "Ładowanie"
+          )}
+        </ul>
       </div>
     );
   }
