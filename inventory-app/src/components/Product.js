@@ -4,64 +4,68 @@ import ProductVariations from "./ProductVariations";
 class Product extends React.Component {
   constructor(props) {
     super(props);
-    // this.handleAdd = this.handleAdd.bind(this);
-    //this.handleSingleProductFetch = this.handleSingleProductFetch.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
+    this.handleReset = this.handleReset.bind(this);
+    this.handleVariationChange = this.handleVariationChange.bind(this);
     this.state = { product: this.props.product };
   }
 
-  // handleSingleProductFetch(productId) {
-  //   api
-  //     .get("products", {
-  //       productId: productId
-  //     })
-  //     .then(response => {
-  //       const product = response.data;
-  //       console.log(product + " pobrano produkt ");
-  //       this.setState({ product: product });
-  //     })
-  //     .catch(error => {
-  //       // Invalid request, for 4xx and 5xx statuses
-  //       console.log("Response Status:", error.response.status);
-  //     });
-  // }
-
-  // handleAdd(e) {y
-  //   //product.amountInStock
-  //   this.setState(
-  //     prevState => {
-  //       let product = { ...prevState.product };
-  //       product.stock_quantity++;
-  //       return { product: product };
-  //     },
-  //     () => this.props.onQuantityChange(this.state.product)
-  //   );
-  // }
-
-  // render() {
-  //   console.log(this.state.product.id + "productid");
-  //   return (
-  //     <tr key={this.state.product.id}>
-  //
-  //       <td>{this.state.product.stock_quantity}</td>
-  //       <td>
-  //         <button onClick={this.handleAdd}> add </button>
-  //       </td>
-  //     </tr>
-  //   );
-  // }
-
-  onClick() {
-    //handleSingleProductFetch(this.state.product.id);
-    //console.log();
+  handleAdd(e) {
+    //product.amountInStock
+    this.setState(
+      prevState => {
+        let product = { ...prevState.product };
+        product.stock_quantity++;
+        return { product: product };
+      },
+      () => this.props.onQuantityChange(this.state.product)
+    );
   }
+
+  handleRemove(e) {
+    //product.amountInStock
+    this.setState(
+      prevState => {
+        let product = { ...prevState.product };
+        product.stock_quantity--;
+        return { product: product };
+      },
+      () => this.props.onQuantityChange(this.state.product)
+    );
+  }
+  handleReset() {
+    this.setState(
+      prevState => {
+        let product = { ...prevState.product };
+        product.stock_quantity = 0;
+        return { product: product };
+      },
+      () => this.props.onQuantityChange(this.state.product)
+    );
+  }
+
+  handleVariationChange(variation) {
+    this.props.onVariationChange(this.state.product.id, variation);
+  }
+
   render() {
     return (
-      <li
-        onClick={() => console.log("wybrano produkt " + this.state.product.id)}
-        key={this.state.product.id}
-      >
+      <li key={this.state.product.id}>
         {this.state.product.name}
-        <ProductVariations />
+        <br />
+        {"ILOSC: " + this.state.product.stock_quantity}
+        <br />
+        <button onClick={this.handleAdd}> add </button>
+        <button onClick={this.handleRemove}> remove </button>
+        <button onClick={this.handleReset}> reset </button>
+        {this.state.product.product_variations ? (
+          <ProductVariations
+            variations={this.state.product.product_variations}
+            name={this.state.product.name}
+            change={this.handleVariationChange}
+          />
+        ) : null}
       </li>
     );
   }

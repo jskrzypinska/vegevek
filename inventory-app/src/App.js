@@ -6,10 +6,11 @@ import { ProductList } from "./components/ProductList";
 class App extends React.Component {
   constructor(props) {
     super(props);
-    //this.vegewekService = new VegewekService();
     this.handleDataFetch = this.handleDataFetch.bind(this);
-    // this.handleProductChange = this.handleProductChange.bind(this);
-    // this.updateProduct = this.updateProduct.bind(this);
+    this.handleProductChange = this.handleProductChange.bind(this);
+    this.handleProductVariationsChange = this.handleProductVariationsChange.bind(
+      this
+    );
     this.state = {
       products: [],
       isLoaded: false
@@ -18,29 +19,38 @@ class App extends React.Component {
 
   handleDataFetch() {
     VegevekService.getProducts(30, 5).then(products => {
-      console.log("ściągnięto produkty: ", products);
+      // console.log("ściągnięto produkty: ", products);
       this.setState({ products, isLoaded: true });
+
+      for (let product of products) {
+        VegevekService.getProductVariations(product.id).then(variations => {
+          // console.log("ściągnięto variations ", variations);
+          product.product_variations = variations;
+          this.setState({ products, isLoaded: true });
+        });
+      }
     });
   }
 
-  // handleProductChange(product) {
-  //   console.log("handleProductChange", product);
-  //   this.updateProduct(product);
-  // }
+  handleProductChange(product) {
+    VegevekService.updateProduct(product)
+      .then(product => {
+        console.log("updateproduct udało się", product);
+      })
+      .then(response => {
+        this.handleDataFetch();
+      });
+  }
 
-  // updateProduct(product) {
-  //   api
-  //     .put("products/" + product.id, {
-  //       stock_quantity: product.stock_quantity
-  //     })
-  //     .then(response => {
-  //       this.handleDataFetch();
-  //     })
-  //     .catch(error => {
-  //       // Invalid request, for 4xx and 5xx statuses
-  //       console.log("Response Status:", error.response.status);
-  //     });
-  // }
+  handleProductVariationsChange(productId, variation) {
+    VegevekService.updateProductVariation(productId, variation)
+      .then(variation => {
+        console.log("upadateVariaton", variation);
+      })
+      .then(response => {
+        this.handleDataFetch();
+      });
+  }
 
   componentDidMount() {
     this.handleDataFetch();
@@ -53,7 +63,8 @@ class App extends React.Component {
           {this.state.isLoaded ? (
             <ProductList
               products={this.state.products}
-              // onProductChange={this.handleProductChange}
+              onProductChange={this.handleProductChange}
+              onVariationChange={this.handleProductVariationsChange}
             />
           ) : (
             "Ładowanie"

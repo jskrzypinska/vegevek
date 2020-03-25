@@ -26,7 +26,7 @@ class VegevekService {
       })
       .catch(error => {
         // Invalid request, for 4xx and 5xx statuses
-        console.log("get products: błąd", error);
+        // console.log("get products: błąd", error);
       });
   }
 
@@ -40,7 +40,7 @@ class VegevekService {
       })
       .catch(error => {
         // Invalid request, for 4xx and 5xx statuses
-        console.log("getProductById: błąd", error);
+        // console.log("getProductById: błąd", error);
       });
   }
 
@@ -54,7 +54,36 @@ class VegevekService {
       })
       .catch(error => {
         // Invalid request, for 4xx and 5xx statuses
-        console.log("getProductVariations: błąd", error);
+        // console.log("getProductVariations: błąd", error);
+      });
+  }
+  static async updateProduct(product) {
+    return api
+      .put("products/" + product.id, {
+        stock_quantity: product.stock_quantity
+      })
+      .then(response => {
+        const product = response.data;
+        return product;
+      })
+      .catch(error => {
+        // Invalid request, for 4xx and 5xx statuses
+        console.log("updateProduct: bład", error);
+      });
+  }
+
+  static async updateProductVariation(productId, variation) {
+    return api
+      .put("products/" + productId + "/variations/" + variation.id, {
+        stock_quantity: variation.stock_quantity
+      })
+      .then(response => {
+        const product = response.data;
+        return product;
+      })
+      .catch(error => {
+        // Invalid request, for 4xx and 5xx statuses
+        console.log("updateProductVariations: bład", error);
       });
   }
 }
