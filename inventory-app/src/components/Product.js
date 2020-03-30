@@ -49,7 +49,15 @@ class Product extends React.Component {
     this.props.onVariationChange(this.state.product.id, variation);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.product != this.props.product) {
+      this.setState({ product: this.props.product });
+    }
+  }
+
   render() {
+    console.log("PRODUCT RENDER, STATE:", this.state);
+    console.log("PRODUCT RENDER, PROPS:", this.props);
     return (
       <li key={this.state.product.id}>
         {this.state.product.name}

@@ -31,11 +31,19 @@ class ProductVariations extends React.Component {
     this.props.change(variation);
   }
   mapVariation = variation => {
+    let variationSize = variation.attributes.find(attr => attr.name === "size")
+      ?.option;
+    let variationExDate = variation.attributes.find(
+      attr => attr.name === "exdate"
+    )?.option;
+
     return (
-      <li>
+      <li key={variation.id}>
         {this.props.name}
         <br />
-        {variation.attributes[0].option}
+        {variationSize}
+        <br />
+        {variationExDate}
         <br />
         {"ILOSC: " + variation.stock_quantity}
         <br />
@@ -53,7 +61,7 @@ class ProductVariations extends React.Component {
   };
 
   render() {
-    console.log("propsy variations: ", this.props.variations);
+    // console.log("propsy variations: ", this.props.variations);
     if (this.state.variations) {
       return <>{this.state.variations.map(this.mapVariation)}</>;
     } else {

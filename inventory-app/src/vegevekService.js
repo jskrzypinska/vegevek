@@ -13,6 +13,18 @@ const api = new WooCommerceRestApi({
 class VegevekService {
   constructor() {}
 
+  static async getCategory() {
+    return api
+      .get("products/categories")
+      .then(response => {
+        // console.log(response.data);
+        const categories = response.data;
+        return categories;
+      })
+      .catch(error => {
+        console.log(error.response.data);
+      });
+  }
   static async getProducts(productCategory, pageSize) {
     return api
       .get("products", {
@@ -20,7 +32,7 @@ class VegevekService {
         category: productCategory // Lokalizacje/Scalac
       })
       .then(response => {
-        console.log("getProducts: sukces");
+        // console.log("getProducts: sukces");
         const products = response.data;
         return products;
       })
@@ -34,7 +46,7 @@ class VegevekService {
     return api
       .get("products/" + productId)
       .then(response => {
-        console.log("getProductById: sukces");
+        // console.log("getProductById: sukces");
         const product = response.data;
         return product;
       })
@@ -48,7 +60,7 @@ class VegevekService {
     return api
       .get(`products/${productId}/variations`)
       .then(response => {
-        console.log("getProductVariations: sukces");
+        // console.log("getProductVariations: sukces", response.data);
         const product = response.data;
         return product;
       })
@@ -68,7 +80,7 @@ class VegevekService {
       })
       .catch(error => {
         // Invalid request, for 4xx and 5xx statuses
-        console.log("updateProduct: bład", error);
+        // console.log("updateProduct: bład", error);
       });
   }
 
@@ -83,7 +95,7 @@ class VegevekService {
       })
       .catch(error => {
         // Invalid request, for 4xx and 5xx statuses
-        console.log("updateProductVariations: bład", error);
+        // console.log("updateProductVariations: bład", error);
       });
   }
 }
