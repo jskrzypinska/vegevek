@@ -50,31 +50,67 @@ class Product extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.product != this.props.product) {
+    if (prevProps.product !== this.props.product) {
       this.setState({ product: this.props.product });
     }
   }
 
   render() {
-    console.log("PRODUCT RENDER, STATE:", this.state);
-    console.log("PRODUCT RENDER, PROPS:", this.props);
     return (
-      <li key={this.state.product.id}>
-        {this.state.product.name}
-        <br />
-        {"ILOSC: " + this.state.product.stock_quantity}
-        <br />
-        <button onClick={this.handleAdd}> add </button>
-        <button onClick={this.handleRemove}> remove </button>
-        <button onClick={this.handleReset}> reset </button>
-        {this.state.product.product_variations ? (
-          <ProductVariations
-            variations={this.state.product.product_variations}
-            name={this.state.product.name}
-            change={this.handleVariationChange}
-          />
-        ) : null}
-      </li>
+      <div className="ui card">
+        <div className="content">
+          <div
+            className="header"
+            style={{
+              display: "flex",
+              justifyContent: "space-evenly",
+              marginTop: 10
+            }}
+          >
+            <span>{this.state.product.name}</span>
+
+            <span>{"ILOŚĆ: " + this.state.product.stock_quantity}</span>
+          </div>
+
+          <div
+            className="extra content"
+            style={{
+              margin: 10,
+              display: "grid"
+            }}
+          >
+            <button
+              style={{ margin: 8 }}
+              className="ui primary basic button"
+              onClick={this.handleAdd}
+            >
+              Dodaj
+            </button>
+            <button
+              style={{ margin: 8 }}
+              className="ui brown basic button"
+              onClick={this.handleRemove}
+            >
+              Usuń
+            </button>
+            <button
+              style={{ margin: 8 }}
+              className="ui black basic button"
+              onClick={this.handleReset}
+            >
+              Zeruj
+            </button>
+          </div>
+
+          {this.state.product.product_variations ? (
+            <ProductVariations
+              variations={this.state.product.product_variations}
+              name={this.state.product.name}
+              change={this.handleVariationChange}
+            />
+          ) : null}
+        </div>
+      </div>
     );
   }
 }

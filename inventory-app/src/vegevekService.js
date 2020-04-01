@@ -11,8 +11,6 @@ const api = new WooCommerceRestApi({
 });
 
 class VegevekService {
-  constructor() {}
-
   static async getCategory() {
     return api
       .get("products/categories")

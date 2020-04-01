@@ -30,7 +30,7 @@ class App extends React.Component {
   }
   handleDataFetch(categoryId) {
     VegevekService.getProducts(categoryId, 5).then(products => {
-      console.log("ściągnięto produkty: ", products);
+      // console.log("ściągnięto produkty: ", products);
       this.setState({ products, isLoaded: true });
 
       for (let product of products) {
@@ -76,16 +76,15 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="ui container">
+      <div className="ui fluid container">
         {this.state.categoriesLoaded ? (
           <Category
             categories={this.state.categories}
             onCategoryChange={this.handleCategoryChange}
           />
-        ) : (
-          "Ładowanie kategorii"
-        )}
-        <ul>
+        ) : null}
+
+        <div className="ui doubling stackable three cards">
           {this.state.productsLoaded ? (
             <ProductList
               products={this.state.products}
@@ -93,9 +92,9 @@ class App extends React.Component {
               onVariationChange={this.handleProductVariationsChange}
             />
           ) : (
-            "Ładowanie"
+            <div className="ui active centered loader"></div>
           )}
-        </ul>
+        </div>
       </div>
     );
   }

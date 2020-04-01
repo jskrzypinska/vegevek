@@ -19,15 +19,12 @@ export class ProductList extends React.Component {
 
   productToProductItem = product => {
     return (
-      <>
-        <Product
-          product={product}
-          onQuantityChange={this.handleQuantityChange}
-          onVariationChange={this.handleVariationsChange}
-        />
-
-        <br />
-      </>
+      <Product
+        key={product.id}
+        product={product}
+        onQuantityChange={this.handleQuantityChange}
+        onVariationChange={this.handleVariationsChange}
+      />
     );
   };
   render() {
