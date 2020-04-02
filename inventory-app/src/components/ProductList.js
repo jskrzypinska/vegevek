@@ -10,7 +10,6 @@ export class ProductList extends React.Component {
   }
 
   handleQuantityChange(product) {
-    // console.log("Zmieniono produkt: ", product);
     this.props.onProductChange(product);
   }
   handleVariationsChange(productId, variation) {
@@ -31,5 +30,3 @@ export class ProductList extends React.Component {
     return <>{this.props.products.map(this.productToProductItem)}</>;
   }
 }
-
-//

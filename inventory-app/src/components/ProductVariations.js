@@ -41,53 +41,67 @@ class ProductVariations extends React.Component {
     )?.option;
 
     return (
-      <div key={variation.id} style={{ marginTop: 40 }}>
+      <div key={variation.id}>
+        <hr style={{ width: "100%" }} />
         <div
           className="header"
           style={{
-            margin: 10,
             display: "flex",
-            justifyContent: "center",
-            fontSize: 17,
-            fontWeight: 600
+            justifyContent: "space-around",
+            margin: 25,
+            fontSize: "large",
+            fontWeight: 500
           }}
         >
           <span style={{ margin: 8 }}>{this.props.name}</span>
           <span style={{ margin: 8, textAlign: "center" }}>
-            {variationSize}
-          </span>
-          <span style={{ margin: 8 }}>{variationExDate}</span>
-          <span style={{ margin: 8, textAlign: "center" }}>
-            {"ILOŚĆ: " + variation.stock_quantity}
+            {"SZT : " + variation.stock_quantity}
           </span>
         </div>
         <div
           className="extra content"
           style={{
-            display: "grid"
+            display: "flex",
+            justifyContent: "space-around",
+            marginTop: 15,
+            fontSize: "initial",
+            fontWeight: 500
+          }}
+        >
+          <span style={{ margin: 8, textAlign: "center" }}>
+            {variationSize}
+          </span>
+          <span style={{ margin: 8 }}>{"DATA : " + variationExDate}</span>
+        </div>
+        <div
+          className="extra content"
+          style={{
+            margin: 15,
+            display: "flex",
+            justifyContent: "space-around"
           }}
         >
           <button
-            className="ui primary button"
+            className="big ui basic positive button"
             onClick={() => this.handleAddVariation(variation.id)}
             disabled={this.state.loading}
-            style={{ margin: 8 }}
+            style={{ margin: 18 }}
           >
-            Dodaj
+            <i class="fas fa-plus"></i>
           </button>
           <button
-            className="ui primary  button"
+            className="big ui basic red button"
             onClick={() => this.handleRemoveVariation(variation.id)}
             disabled={this.state.loading}
-            style={{ margin: 8 }}
+            style={{ margin: 18 }}
           >
-            Usuń
+            <i class="fas fa-minus"></i>
           </button>
           <button
-            className="ui primary button"
+            className="big ui black basic button"
             onClick={() => this.handleResetVariation(variation.id)}
             disabled={this.state.loading}
-            style={{ margin: 8 }}
+            style={{ margin: 18 }}
           >
             Zeruj
           </button>
@@ -97,7 +111,6 @@ class ProductVariations extends React.Component {
   };
 
   render() {
-    // console.log("propsy variations: ", this.props.variations);
     if (this.state.variations) {
       return <>{this.state.variations.map(this.mapVariation)}</>;
     } else {

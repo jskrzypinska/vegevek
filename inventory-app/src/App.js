@@ -30,12 +30,10 @@ class App extends React.Component {
   }
   handleDataFetch(categoryId) {
     VegevekService.getProducts(categoryId, 5).then(products => {
-      // console.log("ściągnięto produkty: ", products);
       this.setState({ products, isLoaded: true });
 
       for (let product of products) {
         VegevekService.getProductVariations(product.id).then(variations => {
-          // console.log("ściągnięto variations ", variations);
           product.product_variations = variations;
           this.setState({ products, productsLoaded: true });
         });
@@ -45,9 +43,7 @@ class App extends React.Component {
 
   handleProductChange(product) {
     VegevekService.updateProduct(product)
-      .then(product => {
-        // console.log("updateproduct udało się", product);
-      })
+      .then(product => {})
       .then(response => {
         this.handleDataFetch(this.state.selectedCategoryId);
       });
@@ -61,16 +57,13 @@ class App extends React.Component {
 
   handleProductVariationsChange(productId, variation) {
     VegevekService.updateProductVariation(productId, variation)
-      .then(variation => {
-        // console.log("upadateVariaton", variation);
-      })
+      .then(variation => {})
       .then(response => {
         this.handleDataFetch(this.state.selectedCategoryId);
       });
   }
 
   componentDidMount() {
-    // this.handleDataFetch();
     this.fetchCategories();
   }
 
@@ -84,16 +77,16 @@ class App extends React.Component {
           />
         ) : null}
 
-        <div className="ui doubling stackable three cards">
+        <div className="ui doubling stackable four cards">
           {this.state.productsLoaded ? (
             <ProductList
               products={this.state.products}
               onProductChange={this.handleProductChange}
               onVariationChange={this.handleProductVariationsChange}
             />
-          ) : (
-            <div className="ui active centered loader"></div>
-          )}
+          ) : null
+          // <div class="ui active loader"></div>
+          }
         </div>
       </div>
     );

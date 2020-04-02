@@ -8,11 +8,10 @@ class Product extends React.Component {
     this.handleRemove = this.handleRemove.bind(this);
     this.handleReset = this.handleReset.bind(this);
     this.handleVariationChange = this.handleVariationChange.bind(this);
-    this.state = { product: this.props.product };
+    this.state = { product: this.props.product, loading: false };
   }
 
   handleAdd(e) {
-    //product.amountInStock
     this.setState(
       prevState => {
         let product = { ...prevState.product };
@@ -24,7 +23,6 @@ class Product extends React.Component {
   }
 
   handleRemove(e) {
-    //product.amountInStock
     this.setState(
       prevState => {
         let product = { ...prevState.product };
@@ -63,39 +61,40 @@ class Product extends React.Component {
             className="header"
             style={{
               display: "flex",
-              justifyContent: "space-evenly",
-              marginTop: 10
+              justifyContent: "space-around",
+              margin: 20
             }}
           >
             <span>{this.state.product.name}</span>
 
-            <span>{"ILOŚĆ: " + this.state.product.stock_quantity}</span>
+            <span>{"SZT : " + this.state.product.stock_quantity}</span>
           </div>
 
           <div
             className="extra content"
             style={{
-              margin: 10,
-              display: "grid"
+              margin: 15,
+              display: "flex",
+              justifyContent: "space-around"
             }}
           >
             <button
-              style={{ margin: 8 }}
-              className="ui primary basic button"
+              style={{ margin: 18 }}
+              className="big ui basic positive button"
               onClick={this.handleAdd}
             >
-              Dodaj
+              <i class="fas fa-plus"></i>
             </button>
             <button
-              style={{ margin: 8 }}
-              className="ui brown basic button"
+              style={{ margin: 18 }}
+              className="big ui basic red button"
               onClick={this.handleRemove}
             >
-              Usuń
+              <i class="fas fa-minus"></i>
             </button>
             <button
-              style={{ margin: 8 }}
-              className="ui black basic button"
+              style={{ margin: 18 }}
+              className="big ui black basic button"
               onClick={this.handleReset}
             >
               Zeruj

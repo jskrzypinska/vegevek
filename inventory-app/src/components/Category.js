@@ -12,7 +12,9 @@ class Category extends React.Component {
     };
   }
   handleChange(event) {
-    this.setState({ chosenCategoryId: event.target.value });
+    this.setState({
+      chosenCategoryId: event.target.value
+    });
   }
   handleSubmit(event) {
     this.props.onCategoryChange(this.state.chosenCategoryId);
@@ -41,7 +43,6 @@ class Category extends React.Component {
           >
             {this.state.categories.map(this.mapCategory)}
           </select>
-
           <div className="ui fluid input">
             <input type="submit" value="Wyślij" />
           </div>
