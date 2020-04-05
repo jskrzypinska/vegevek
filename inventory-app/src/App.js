@@ -3,6 +3,10 @@ import React from "react";
 import VegevekService from "./vegevekService";
 import Category from "./components/Category";
 import { ProductList } from "./components/ProductList";
+import Modal from "./components/Modal";
+import { Button } from "semantic-ui-react";
+
+import Cookies from "js-cookie";
 
 class App extends React.Component {
   constructor(props) {
@@ -11,6 +15,8 @@ class App extends React.Component {
     this.handleDataFetch = this.handleDataFetch.bind(this);
     this.handleProductChange = this.handleProductChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
+    this.handleModalClose = this.handleModalClose.bind(this);
+    this.reloadData = this.reloadData.bind(this);
     this.handleProductVariationsChange = this.handleProductVariationsChange.bind(
       this
     );
@@ -63,13 +69,46 @@ class App extends React.Component {
       });
   }
 
+  reloadData() {
+    const key = Cookies.get("key");
+    const secret = Cookies.get("secret");
+
+    if (key && secret) {
+      VegevekService.InitApi(key, secret);
+      this.fetchCategories();
+    }
+  }
+
+  handleModalClose() {
+    this.reloadData();
+  }
+
   componentDidMount() {
-    this.fetchCategories();
+    this.reloadData();
   }
 
   render() {
     return (
       <div className="ui fluid container">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: 10
+          }}
+        >
+          <Modal
+            trigger={
+              <Button onClick={this.handleOpen}>
+                <i class="fas fa-cog"></i>
+              </Button>
+            }
+            open={this.state.modalOpen}
+            onClose={this.handleModalClose}
+            basic
+            size="small"
+          />
+        </div>
         {this.state.categoriesLoaded ? (
           <Category
             categories={this.state.categories}

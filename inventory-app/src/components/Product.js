@@ -16,7 +16,7 @@ class Product extends React.Component {
       prevState => {
         let product = { ...prevState.product };
         product.stock_quantity++;
-        return { product: product };
+        return { product: product, loading: true };
       },
       () => this.props.onQuantityChange(this.state.product)
     );
@@ -27,8 +27,9 @@ class Product extends React.Component {
       prevState => {
         let product = { ...prevState.product };
         product.stock_quantity--;
-        return { product: product };
+        return { product: product, loading: true };
       },
+
       () => this.props.onQuantityChange(this.state.product)
     );
   }
@@ -37,7 +38,7 @@ class Product extends React.Component {
       prevState => {
         let product = { ...prevState.product };
         product.stock_quantity = 0;
-        return { product: product };
+        return { product: product, loading: true };
       },
       () => this.props.onQuantityChange(this.state.product)
     );
@@ -49,7 +50,7 @@ class Product extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.product !== this.props.product) {
-      this.setState({ product: this.props.product });
+      this.setState({ product: this.props.product, loading: false });
     }
   }
 
@@ -61,13 +62,14 @@ class Product extends React.Component {
             className="header"
             style={{
               display: "flex",
-              justifyContent: "space-around",
-              margin: 20
+              justifyContent: "space-around"
             }}
           >
-            <span>{this.state.product.name}</span>
-
-            <span>{"SZT : " + this.state.product.stock_quantity}</span>
+            <div style={{ placeSelf: "center" }}>{this.state.product.name}</div>
+            <div class="ui red small statistic">
+              <div className="value">{this.state.product.stock_quantity}</div>
+              <div classNAme="label">szt.</div>
+            </div>
           </div>
 
           <div
@@ -82,6 +84,7 @@ class Product extends React.Component {
               style={{ margin: 18 }}
               className="big ui basic positive button"
               onClick={this.handleAdd}
+              disabled={this.state.loading}
             >
               <i class="fas fa-plus"></i>
             </button>
@@ -89,15 +92,17 @@ class Product extends React.Component {
               style={{ margin: 18 }}
               className="big ui basic red button"
               onClick={this.handleRemove}
+              disabled={this.state.loading}
             >
-              <i class="fas fa-minus"></i>
+              {this.state.loading} <i class="fas fa-minus"></i>
             </button>
             <button
               style={{ margin: 18 }}
               className="big ui black basic button"
               onClick={this.handleReset}
+              disabled={this.state.loading}
             >
-              Zeruj
+              0
             </button>
           </div>
 

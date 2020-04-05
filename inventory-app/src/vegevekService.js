@@ -1,18 +1,20 @@
 import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
-import { cK } from "./WooApi";
-import { cS } from "./WooApi";
-
-const api = new WooCommerceRestApi({
-  url: "https://vegevek.pl",
-  consumerKey: `${cK}`,
-  consumerSecret: `${cS}`,
-  version: "wc/v3",
-  queryStringAuth: true
-});
 
 class VegevekService {
+  static api = null;
+
+  static InitApi(key, secret) {
+    VegevekService.api = new WooCommerceRestApi({
+      url: "https://vegevek.pl",
+      consumerKey: `${key}`,
+      consumerSecret: `${secret}`,
+      version: "wc/v3",
+      queryStringAuth: true
+    });
+  }
+
   static async getCategory() {
-    return api
+    return VegevekService.api
       .get("products/categories")
       .then(response => {
         // console.log(response.data);
@@ -24,7 +26,7 @@ class VegevekService {
       });
   }
   static async getProducts(productCategory, pageSize) {
-    return api
+    return VegevekService.api
       .get("products", {
         per_page: pageSize, // 100 products per page
         category: productCategory // Lokalizacje/Scalac
@@ -41,7 +43,7 @@ class VegevekService {
   }
 
   static async getProductById(productId) {
-    return api
+    return VegevekService.api
       .get("products/" + productId)
       .then(response => {
         // console.log("getProductById: sukces");
@@ -55,7 +57,7 @@ class VegevekService {
   }
 
   static async getProductVariations(productId) {
-    return api
+    return VegevekService.api
       .get(`products/${productId}/variations`)
       .then(response => {
         // console.log("getProductVariations: sukces", response.data);
@@ -68,7 +70,7 @@ class VegevekService {
       });
   }
   static async updateProduct(product) {
-    return api
+    return VegevekService.api
       .put("products/" + product.id, {
         stock_quantity: product.stock_quantity
       })
@@ -83,7 +85,7 @@ class VegevekService {
   }
 
   static async updateProductVariation(productId, variation) {
-    return api
+    return VegevekService.api
       .put("products/" + productId + "/variations/" + variation.id, {
         stock_quantity: variation.stock_quantity
       })

@@ -33,6 +33,7 @@ class ProductVariations extends React.Component {
     this.props.change(variation);
     this.setState({ loading: true });
   }
+
   mapVariation = variation => {
     let variationSize = variation.attributes.find(attr => attr.name === "size")
       ?.option;
@@ -48,22 +49,26 @@ class ProductVariations extends React.Component {
           style={{
             display: "flex",
             justifyContent: "space-around",
-            margin: 25,
+            margin: 30,
             fontSize: "large",
             fontWeight: 500
           }}
         >
-          <span style={{ margin: 8 }}>{this.props.name}</span>
-          <span style={{ margin: 8, textAlign: "center" }}>
+          <div style={{ placeSelf: "center" }}>{this.props.name}</div>
+          <div className="ui red small statistic">
+            {/* <span style={{ margin: 8, textAlign: "center" }}>
             {"SZT : " + variation.stock_quantity}
-          </span>
+          </span> */}
+            <div className="value">{variation.stock_quantity}</div>
+            <div classNAme="label">szt.</div>
+          </div>
         </div>
         <div
           className="extra content"
           style={{
             display: "flex",
             justifyContent: "space-around",
-            marginTop: 15,
+            marginTop: 40,
             fontSize: "initial",
             fontWeight: 500
           }}
@@ -103,7 +108,7 @@ class ProductVariations extends React.Component {
             disabled={this.state.loading}
             style={{ margin: 18 }}
           >
-            Zeruj
+            0
           </button>
         </div>
       </div>
