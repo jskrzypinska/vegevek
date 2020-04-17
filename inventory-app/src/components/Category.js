@@ -4,24 +4,25 @@ class Category extends React.Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
 
     this.state = {
       categories: this.props.categories,
-      chosenCategoryId: ""
+      chosenCategoryId: "",
     };
   }
   handleChange(event) {
-    this.setState({
-      chosenCategoryId: event.target.value
-    });
-  }
-  handleSubmit(event) {
-    this.props.onCategoryChange(this.state.chosenCategoryId);
-    event.preventDefault();
+    this.setState(
+      {
+        chosenCategoryId: event.target.value,
+        isLoading: true,
+      },
+      () => {
+        this.props.onCategoryChange(this.state.chosenCategoryId);
+      }
+    );
   }
 
-  mapCategory = category => {
+  mapCategory = (category) => {
     return (
       <option key={category.id} value={category.id}>
         {category.name}
@@ -31,21 +32,19 @@ class Category extends React.Component {
   render() {
     return (
       <>
-        <form
-          className="ui form"
-          style={{ margin: 35 }}
-          onSubmit={this.handleSubmit}
-        >
-          <h3 style={{ textAlign: "center" }}>Wybierz kategorię</h3>
+        <form className="ui form" style={{ margin: 35 }}>
+          <h3 style={{ textAlign: "center" }}>Choose category</h3>
           <select
+            placeholder={"Select category"}
             value={this.state.chosenCategoryId}
             onChange={this.handleChange}
           >
+            <option value="" defaultValue="Select your option" disabled>
+              Select your option
+            </option>
+
             {this.state.categories.map(this.mapCategory)}
           </select>
-          <div className="ui fluid input">
-            <input type="submit" value="Wyślij" />
-          </div>
         </form>
       </>
     );

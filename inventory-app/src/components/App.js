@@ -1,11 +1,10 @@
 import React from "react";
 
-import VegevekService from "./vegevekService";
-import Category from "./components/Category";
-import { ProductList } from "./components/ProductList";
-import Modal from "./components/Modal";
+import VegevekService from "../vegevekService";
+import Category from "./Category";
+import { ProductList } from "./ProductList";
+import Modal from "./Modal";
 import { Button } from "semantic-ui-react";
-
 import Cookies from "js-cookie";
 
 class App extends React.Component {
@@ -25,21 +24,23 @@ class App extends React.Component {
       productsLoaded: false,
       categoriesLoaded: false,
       categories: [],
-      selectedCategoryId: null
+      selectedCategoryId: "null",
+      configSets: false,
+      showVariantProducts: false,
     };
   }
 
   fetchCategories() {
-    VegevekService.getCategory().then(categories => {
+    VegevekService.getCategory().then((categories) => {
       this.setState({ categories, categoriesLoaded: true });
     });
   }
   handleDataFetch(categoryId) {
-    VegevekService.getProducts(categoryId, 5).then(products => {
-      this.setState({ products, isLoaded: true });
+    VegevekService.getProducts(categoryId, 10).then((products) => {
+      this.setState({ products, productsLoaded: true });
 
       for (let product of products) {
-        VegevekService.getProductVariations(product.id).then(variations => {
+        VegevekService.getProductVariations(product.id).then((variations) => {
           product.product_variations = variations;
           this.setState({ products, productsLoaded: true });
         });
@@ -49,8 +50,8 @@ class App extends React.Component {
 
   handleProductChange(product) {
     VegevekService.updateProduct(product)
-      .then(product => {})
-      .then(response => {
+      .then((product) => {})
+      .then((response) => {
         this.handleDataFetch(this.state.selectedCategoryId);
       });
   }
@@ -63,8 +64,8 @@ class App extends React.Component {
 
   handleProductVariationsChange(productId, variation) {
     VegevekService.updateProductVariation(productId, variation)
-      .then(variation => {})
-      .then(response => {
+      .then((variation) => {})
+      .then((response) => {
         this.handleDataFetch(this.state.selectedCategoryId);
       });
   }
@@ -72,10 +73,12 @@ class App extends React.Component {
   reloadData() {
     const key = Cookies.get("key");
     const secret = Cookies.get("secret");
+    const url = Cookies.get("url");
 
-    if (key && secret) {
-      VegevekService.InitApi(key, secret);
+    if (key && secret && url) {
+      VegevekService.InitApi(key, secret, url);
       this.fetchCategories();
+      this.setState({ configSets: true });
     }
   }
 
@@ -89,18 +92,18 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="ui fluid container">
+      <>
         <div
           style={{
             display: "flex",
             justifyContent: "flex-end",
-            marginTop: 10
+            marginTop: 10,
           }}
         >
           <Modal
             trigger={
-              <Button onClick={this.handleOpen}>
-                <i class="fas fa-cog"></i>
+              <Button onClick={this.handleOpen} style={{ margin: 30 }}>
+                <i className="fas fa-cog"></i>
               </Button>
             }
             open={this.state.modalOpen}
@@ -114,20 +117,28 @@ class App extends React.Component {
             categories={this.state.categories}
             onCategoryChange={this.handleCategoryChange}
           />
-        ) : null}
-
-        <div className="ui doubling stackable four cards">
+        ) : (
+          <div
+            className="ui active centered inline loader"
+            style={{ marginTop: 100 }}
+          ></div>
+        )}
+        {this.state.configSets ? null : (
+          <h2 className="ui center aligned header" style={{ margin: 50 }}>
+            Please config app
+          </h2>
+        )}
+        <div className="ui doubling stackable one cards">
           {this.state.productsLoaded ? (
             <ProductList
               products={this.state.products}
               onProductChange={this.handleProductChange}
               onVariationChange={this.handleProductVariationsChange}
             />
-          ) : null
-          // <div class="ui active loader"></div>
-          }
+          ) : // <div class="ui active centered inline loader"></div>
+          null}
         </div>
-      </div>
+      </>
     );
   }
 }

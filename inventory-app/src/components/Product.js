@@ -1,5 +1,9 @@
 import React from "react";
 import ProductVariations from "./ProductVariations";
+import Message from "./Message";
+import Cookies from "js-cookie";
+
+const DONT_SHOW_ROOT_PRODUCT_POPUP = "DontShowRootProductPopup";
 
 class Product extends React.Component {
   constructor(props) {
@@ -8,112 +12,226 @@ class Product extends React.Component {
     this.handleRemove = this.handleRemove.bind(this);
     this.handleReset = this.handleReset.bind(this);
     this.handleVariationChange = this.handleVariationChange.bind(this);
-    this.state = { product: this.props.product, loading: false };
+    this.handleSave = this.handleSave.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
+    this.shouldNotShowPopup = this.shouldNotShowPopup.bind(this);
+    this.state = {
+      product: this.props.product,
+      loading: false,
+      showOnlyVariantsProduct: false,
+      open: false,
+      mode: "none", //none, reset, add, remove
+    };
   }
 
-  handleAdd(e) {
-    this.setState(
-      prevState => {
-        let product = { ...prevState.product };
-        product.stock_quantity++;
-        return { product: product, loading: true };
-      },
-      () => this.props.onQuantityChange(this.state.product)
-    );
+  handleAdd() {
+    if (this.shouldNotShowPopup()) {
+      this.setState(
+        (prevState) => {
+          let product = { ...prevState.product };
+          product.stock_quantity++;
+          return {
+            product: product,
+            loading: true,
+          };
+        },
+        () => this.props.onQuantityChange(this.state.product)
+      );
+    } else {
+      this.setState({
+        open: true,
+        mode: "add",
+      });
+    }
   }
 
-  handleRemove(e) {
-    this.setState(
-      prevState => {
-        let product = { ...prevState.product };
-        product.stock_quantity--;
-        return { product: product, loading: true };
-      },
-
-      () => this.props.onQuantityChange(this.state.product)
-    );
+  handleRemove() {
+    if (this.shouldNotShowPopup()) {
+      this.setState(
+        (prevState) => {
+          let product = { ...prevState.product };
+          product.stock_quantity--;
+          return {
+            product: product,
+            loading: true,
+          };
+        },
+        () => this.props.onQuantityChange(this.state.product)
+      );
+    } else {
+      this.setState({
+        open: true,
+        mode: "remove",
+      });
+    }
   }
+
   handleReset() {
-    this.setState(
-      prevState => {
-        let product = { ...prevState.product };
-        product.stock_quantity = 0;
-        return { product: product, loading: true };
-      },
-      () => this.props.onQuantityChange(this.state.product)
-    );
+    if (this.shouldNotShowPopup()) {
+      this.setState(
+        (prevState) => {
+          let product = { ...prevState.product };
+          product.stock_quantity = 0;
+          return {
+            product: product,
+            loading: true,
+          };
+        },
+        () => this.props.onQuantityChange(this.state.product)
+      );
+    } else {
+      this.setState({
+        open: true,
+        mode: "reset",
+      });
+    }
   }
 
   handleVariationChange(variation) {
     this.props.onVariationChange(this.state.product.id, variation);
   }
 
+  handleSave(dontShow) {
+    // console.log("handle save", dontShow);
+    this.setState(
+      (prevState) => {
+        let product = { ...prevState.product };
+        switch (this.state.mode) {
+          case "add":
+            product.stock_quantity++;
+            break;
+          case "remove":
+            product.stock_quantity--;
+            break;
+          case "reset":
+            product.stock_quantity = 0;
+            break;
+          case "none":
+            break;
+        }
+
+        return {
+          product: product,
+          loading: true,
+          mode: "none",
+          open: false,
+        };
+      },
+      () => {
+        Cookies.set(DONT_SHOW_ROOT_PRODUCT_POPUP, dontShow, { expires: 30 });
+        this.props.onQuantityChange(this.state.product);
+      }
+    );
+  }
+
+  handleCancel() {
+    // console.log("cancel");
+    this.setState({
+      open: false,
+      mode: "none",
+    });
+  }
+
+  shouldNotShowPopup() {
+    let dontShowPopup = Cookies.get(DONT_SHOW_ROOT_PRODUCT_POPUP) === "true";
+    // console.log("Dont show popup: ", dontShowPopup);
+    return dontShowPopup;
+  }
+
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.product !== this.props.product) {
-      this.setState({ product: this.props.product, loading: false });
+      this.setState({
+        product: this.props.product,
+        loading: false,
+        // open: false,
+      });
     }
   }
 
   render() {
     return (
-      <div className="ui card">
-        <div className="content">
-          <div
-            className="header"
-            style={{
-              display: "flex",
-              justifyContent: "space-around"
-            }}
-          >
-            <div style={{ placeSelf: "center" }}>{this.state.product.name}</div>
-            <div class="ui red small statistic">
-              <div className="value">{this.state.product.stock_quantity}</div>
-              <div classNAme="label">szt.</div>
+      <div className="ui card" style={{ marginTop: 30 }}>
+        {this.state.open ? (
+          <Message
+            open={this.state.open}
+            onSave={this.handleSave}
+            onCancel={this.handleCancel}
+            dontShow={this.shouldNotShowPopup()}
+          />
+        ) : null}
+        {this.state.showOnlyVariantsProduct ? null : (
+          <div className="content">
+            <div
+              className="extra content"
+              style={{
+                display: "flex",
+                justifyContent: "space-around",
+                marginTop: 30,
+                marginBottom: 30,
+                fontSize: "large",
+                fontWeight: 500,
+                flex: "2 0 0",
+              }}
+            >
+              <div
+                style={{
+                  placeSelf: "center",
+                  maxWidth: "50%",
+                  textAlign: "center",
+                  flex: 1,
+                }}
+              >
+                {this.state.product.name}
+              </div>
+              <div className="ui red small statistic" style={{ margin: 0 }}>
+                <div className="value">{this.state.product.stock_quantity}</div>
+                <div className="label">Qty</div>
+              </div>
+            </div>
+
+            <div
+              className="extra content"
+              style={{
+                margin: 15,
+                display: "flex",
+                justifyContent: "space-around",
+              }}
+            >
+              <button
+                style={{ margin: 18 }}
+                className="big ui  circular  basic positive button"
+                onClick={this.handleAdd}
+                disabled={this.state.loading}
+              >
+                <i className="fas fa-plus"></i>
+              </button>
+              <button
+                style={{ margin: 18 }}
+                className="big ui circular basic red button"
+                onClick={this.handleRemove}
+                disabled={this.state.loading}
+              >
+                {this.state.loading} <i className="fas fa-minus"></i>
+              </button>
+              <button
+                style={{ margin: 18 }}
+                className="big ui  circular black basic button"
+                onClick={this.handleReset}
+                disabled={this.state.loading}
+              >
+                0
+              </button>
             </div>
           </div>
+        )}
 
-          <div
-            className="extra content"
-            style={{
-              margin: 15,
-              display: "flex",
-              justifyContent: "space-around"
-            }}
-          >
-            <button
-              style={{ margin: 18 }}
-              className="big ui basic positive button"
-              onClick={this.handleAdd}
-              disabled={this.state.loading}
-            >
-              <i class="fas fa-plus"></i>
-            </button>
-            <button
-              style={{ margin: 18 }}
-              className="big ui basic red button"
-              onClick={this.handleRemove}
-              disabled={this.state.loading}
-            >
-              {this.state.loading} <i class="fas fa-minus"></i>
-            </button>
-            <button
-              style={{ margin: 18 }}
-              className="big ui black basic button"
-              onClick={this.handleReset}
-              disabled={this.state.loading}
-            >
-              0
-            </button>
-          </div>
-
-          {this.state.product.product_variations ? (
-            <ProductVariations
-              variations={this.state.product.product_variations}
-              name={this.state.product.name}
-              change={this.handleVariationChange}
-            />
-          ) : null}
-        </div>
+        {this.state.product.product_variations ? (
+          <ProductVariations
+            variations={this.state.product.product_variations}
+            name={this.state.product.name}
+            change={this.handleVariationChange}
+          />
+        ) : null}
       </div>
     );
   }
