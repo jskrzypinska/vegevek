@@ -69,6 +69,33 @@ class VegevekService {
         // console.log("getProductVariations: błąd", error);
       });
   }
+
+  static async createProductVariation(
+    productId,
+    variationAttributes,
+    quantity
+  ) {
+    console.log("createProductVariation, productId", productId);
+    console.log(
+      "createProductVariation, variationAttributes",
+      variationAttributes
+    );
+    return VegevekService.api
+      .post(`products/${productId}/variations`, {
+        attributes: variationAttributes,
+        stock_quantity: quantity,
+        manage_stock: true,
+      })
+      .then((response) => {
+        console.log("createProductVariation: sukces", response.data);
+        const variation = response.data;
+        return variation;
+      })
+      .catch((error) => {
+        // Invalid request, for 4xx and 5xx statuses
+        console.log("createProductVariation: błąd", error);
+      });
+  }
   static async updateProduct(product) {
     return VegevekService.api
       .put("products/" + product.id, {
@@ -85,17 +112,23 @@ class VegevekService {
   }
 
   static async updateProductVariation(productId, variation) {
+    console.log(
+      "updateProductVariation, productId, variation",
+      productId,
+      variation
+    );
     return VegevekService.api
       .put("products/" + productId + "/variations/" + variation.id, {
         stock_quantity: variation.stock_quantity,
       })
       .then((response) => {
+        console.log("updateProductVariation: sukces", response.data);
         const product = response.data;
         return product;
       })
       .catch((error) => {
         // Invalid request, for 4xx and 5xx statuses
-        // console.log("updateProductVariations: bład", error);
+        console.log("updateProductVariations: bład", error);
       });
   }
 }

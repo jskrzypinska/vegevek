@@ -3,6 +3,11 @@ import { Button, Modal } from "semantic-ui-react";
 
 export default class Message extends Component {
   state = { open: this.props.open, dontShow: this.props.dontShow };
+  modal_hader = {
+    border: "none",
+    fontWeight: 300,
+    margin: 5,
+  };
 
   closeConfigShow = (closeOnEscape, closeOnDimmerClick) => () => {
     this.setState({ closeOnEscape, closeOnDimmerClick, open: true });
@@ -30,7 +35,7 @@ export default class Message extends Component {
           closeOnDimmerClick={closeOnDimmerClick}
           onClose={this.close}
         >
-          <Modal.Header style={{ border: "none", fontWeight: 300, margin: 5 }}>
+          <Modal.Header style={this.modal_hader}>
             You are changing root product for variable product. Do you want to
             continue?
             <div className="field" style={{ marginTop: 15 }}>

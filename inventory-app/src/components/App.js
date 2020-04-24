@@ -3,7 +3,7 @@ import React from "react";
 import VegevekService from "../vegevekService";
 import Category from "./Category";
 import { ProductList } from "./ProductList";
-import Modal from "./Modal";
+import ModalConfig from "./ModalConfig";
 import { Button } from "semantic-ui-react";
 import Cookies from "js-cookie";
 
@@ -19,17 +19,34 @@ class App extends React.Component {
     this.handleProductVariationsChange = this.handleProductVariationsChange.bind(
       this
     );
+    this.handleAddedProductVariation = this.handleAddedProductVariation.bind(
+      this
+    );
     this.state = {
       products: [],
       productsLoaded: false,
       categoriesLoaded: false,
       categories: [],
-      selectedCategoryId: "null",
+      selectedCategoryId: null,
       configSets: false,
       showVariantProducts: false,
     };
   }
 
+  div_container = {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: 10,
+  };
+  button = {
+    margin: 30,
+  };
+  inline_loader = {
+    marginTop: 100,
+  };
+  header = {
+    margin: 50,
+  };
   fetchCategories() {
     VegevekService.getCategory().then((categories) => {
       this.setState({ categories, categoriesLoaded: true });
@@ -55,6 +72,13 @@ class App extends React.Component {
         this.handleDataFetch(this.state.selectedCategoryId);
       });
   }
+  // handleAddProductVariation = (productId, newProduct) => {
+  //   VegevekService.createProductVariation(productId, newProduct)
+  //     .then((newProduct) => {})
+  //     .then((response) => {
+  //       this.handleDataFetch(this.state.selectedCategoryId);
+  //     });
+  // };
 
   handleCategoryChange(categoryId) {
     this.setState({ selectedCategoryId: categoryId }, () =>
@@ -69,6 +93,32 @@ class App extends React.Component {
         this.handleDataFetch(this.state.selectedCategoryId);
       });
   }
+
+  handleAddedProductVariation(productId, variationAttributes, quantity) {
+    VegevekService.createProductVariation(
+      productId,
+      variationAttributes,
+      quantity
+    )
+      .then((variation) => {})
+      .then((response) => {
+        this.handleDataFetch(this.state.selectedCategoryId);
+      });
+  }
+
+  // handleAddedProductVariation(productId, variationAttributes, quantity) {
+  //   VegevekService.createProductVariation(productId, variationAttributes)
+  //     .then((variation) => {
+  //       let updatedVariation = { id: variation.id, stock_quantity: quantity };
+  //       return VegevekService.updateProductVariation(
+  //         productId,
+  //         updatedVariation
+  //       );
+  //     })
+  //     .then((response) => {
+  //       this.handleDataFetch(this.state.selectedCategoryId);
+  //     });
+  // }
 
   reloadData() {
     const key = Cookies.get("key");
@@ -93,16 +143,10 @@ class App extends React.Component {
   render() {
     return (
       <>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: 10,
-          }}
-        >
-          <Modal
+        <div style={this.div_container}>
+          <ModalConfig
             trigger={
-              <Button onClick={this.handleOpen} style={{ margin: 30 }}>
+              <Button onClick={this.handleOpen} style={this.button}>
                 <i className="fas fa-cog"></i>
               </Button>
             }
@@ -120,11 +164,11 @@ class App extends React.Component {
         ) : (
           <div
             className="ui active centered inline loader"
-            style={{ marginTop: 100 }}
+            style={this.inline_loader}
           ></div>
         )}
         {this.state.configSets ? null : (
-          <h2 className="ui center aligned header" style={{ margin: 50 }}>
+          <h2 className="ui center aligned header" style={this.header}>
             Please config app
           </h2>
         )}
@@ -134,6 +178,8 @@ class App extends React.Component {
               products={this.state.products}
               onProductChange={this.handleProductChange}
               onVariationChange={this.handleProductVariationsChange}
+              onAddedProductVariation={this.handleAddedProductVariation}
+              // onAddNewProductVariation={this.handleAddProductVariation}
             />
           ) : // <div class="ui active centered inline loader"></div>
           null}

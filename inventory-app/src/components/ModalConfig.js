@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Button, Header, Modal } from "semantic-ui-react";
 import Cookies from "js-cookie";
 
-export default class ModalControlled extends Component {
+export default class ModalConfig extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -65,7 +65,7 @@ export default class ModalControlled extends Component {
               <label>
                 <input
                   name="url"
-                  checked={this.state.url}
+                  value={this.state.url}
                   onChange={this.handleChange}
                   placeholder="API URL"
                 />

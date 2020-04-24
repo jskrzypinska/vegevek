@@ -15,14 +15,22 @@ export class ProductList extends React.Component {
   handleVariationsChange(productId, variation) {
     this.props.onVariationChange(productId, variation);
   }
+  handleAddProductVariation = (productId, variationAttributes, quantity) => {
+    this.props.onAddedProductVariation(
+      productId,
+      variationAttributes,
+      quantity
+    );
+  };
 
-  productToProductItem = product => {
+  productToProductItem = (product) => {
     return (
       <Product
         key={product.id}
         product={product}
         onQuantityChange={this.handleQuantityChange}
         onVariationChange={this.handleVariationsChange}
+        onAddedProductVariation={this.handleAddProductVariation}
       />
     );
   };
