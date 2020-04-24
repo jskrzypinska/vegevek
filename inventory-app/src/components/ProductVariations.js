@@ -34,7 +34,11 @@ class ProductVariations extends React.Component {
     flex: 1,
     marginTop: 10,
   };
-  content_buttons = {};
+  content_buttons = {
+    margin: 10,
+    display: "flex",
+    justifyContent: "space-between",
+  };
   handleAddVariation(variationId) {
     let variation = this.state.variations.find(
       (variation) => variation.id === variationId
