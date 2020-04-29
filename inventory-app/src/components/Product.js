@@ -1,7 +1,7 @@
 import React from "react";
 import ProductVariations from "./ProductVariations";
 import Message from "./Message";
-
+import { Button } from "semantic-ui-react";
 import Cookies from "js-cookie";
 import AddProductVariation from "./AddProductVariation";
 
@@ -25,6 +25,7 @@ class Product extends React.Component {
       loading: false,
       showOnlyVariantsProduct: false,
       open: false,
+
       mode: "none", //none, reset, add, remove
     };
   }
@@ -48,6 +49,7 @@ class Product extends React.Component {
     textAlign: "center",
     flex: 1,
   };
+
   handleAdd() {
     if (this.shouldNotShowPopup()) {
       this.setState(
@@ -115,10 +117,17 @@ class Product extends React.Component {
     this.props.onVariationChange(this.state.product.id, variation);
   }
 
-  handleAddedProductVariation = (variationAttributes, quantity) => {
+  handleAddedProductVariation = (
+    variationAttributes,
+    regularPrice,
+    salePrice,
+    quantity
+  ) => {
     this.props.onAddedProductVariation(
       this.state.product.id,
       variationAttributes,
+      regularPrice,
+      salePrice,
       quantity
     );
   };
@@ -191,9 +200,10 @@ class Product extends React.Component {
           <AddProductVariation
             attributes={this.state.product.attributes}
             onSave={this.handleAddedProductVariation}
+            product={this.state.product}
           />
           {this.state.showOnlyVariantsProduct ? null : (
-            <div className="content">
+            <div className="content" style={{ padding: 0 }}>
               <div className="extra content" style={this.content_header}>
                 <div style={this.header}>{this.state.product.name}</div>
                 <div className="ui red small statistic" style={{ margin: 0 }}>

@@ -73,16 +73,24 @@ class VegevekService {
   static async createProductVariation(
     productId,
     variationAttributes,
+    regularPrice,
+    salePrice,
     quantity
   ) {
-    console.log("createProductVariation, productId", productId);
-    console.log(
-      "createProductVariation, variationAttributes",
-      variationAttributes
-    );
+    // console.log("createProductVariation, productId", productId);
+
+    // console.log(
+    //   "createProductVariation, variationAttributes",
+    //   variationAttributes
+    // );
+    // console.log("createProductVariation, regularPrice", regularPrice);
+    // console.log("createProductVariation, salePrice", salePrice);
+    // console.log("createProductVariation, quantity", quantity);
     return VegevekService.api
       .post(`products/${productId}/variations`, {
         attributes: variationAttributes,
+        regular_price: regularPrice,
+        sale_price: salePrice,
         stock_quantity: quantity,
         manage_stock: true,
       })
@@ -119,6 +127,8 @@ class VegevekService {
     );
     return VegevekService.api
       .put("products/" + productId + "/variations/" + variation.id, {
+        regular_price: variation.regular_price,
+        sale_price: variation.sale_price,
         stock_quantity: variation.stock_quantity,
       })
       .then((response) => {

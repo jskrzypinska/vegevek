@@ -6,7 +6,9 @@ export default class AddProductVariation extends Component {
     modalOpen: false,
     attributes: this.props.attributes,
     selectedVariations: [],
-    quantity: 0,
+    regularPrice: "",
+    salePrice: "",
+    quantity: "",
   };
 
   handleOpen = () => this.setState({ modalOpen: true });
@@ -21,7 +23,12 @@ export default class AddProductVariation extends Component {
       return { id: v.attrid, option: v.value };
     });
 
-    this.props.onSave(variations, this.state.quantity);
+    this.props.onSave(
+      variations,
+      this.state.regularPrice,
+      this.state.salePrice,
+      this.state.quantity
+    );
     this.setState({ modalOpen: false });
   };
 
@@ -49,6 +56,15 @@ export default class AddProductVariation extends Component {
 
   handleQuantityChange = (e) => {
     this.setState({ quantity: parseInt(e.target.value) });
+  };
+
+  handleRegularPriceChange = (e) => {
+    console.log("regularPrice", e.target.value);
+    this.setState({ regularPrice: e.target.value });
+  };
+  handleSalePriceChange = (e) => {
+    console.log("salePrice", e.target.value);
+    this.setState({ salePrice: e.target.value });
   };
 
   mapToDropdown = (options, attributeId) => {
@@ -93,7 +109,11 @@ export default class AddProductVariation extends Component {
         open={modalOpen}
         onClose={this.handleClose}
       >
-        <Header icon="browser" content="Add variation" style={{ margin: 5 }} />
+        <Header
+          icon="browser"
+          content={`Add variation ${this.props.product.name}`}
+          style={{ margin: 5 }}
+        />
         <Modal.Content
           style={{
             display: "flex",
@@ -115,6 +135,28 @@ export default class AddProductVariation extends Component {
                   pattern="\d+"
                 />
                 <div className="ui basic label label">Qty</div>
+              </div>
+              <div className="ui right labeled input" style={{ margin: 5 }}>
+                <input
+                  type="number"
+                  placeholder="Enter regular price"
+                  min="0"
+                  max="100"
+                  value={this.state.regularPrice}
+                  onChange={this.handleRegularPriceChange}
+                />
+                <div className="ui basic label">$</div>
+              </div>
+              <div className="ui right labeled input" style={{ margin: 5 }}>
+                <input
+                  type="number"
+                  placeholder="Enter sale price"
+                  min="0"
+                  max="100"
+                  value={this.state.salePrice}
+                  onChange={this.handleSalePriceChange}
+                />
+                <div className="ui basic label">$</div>
               </div>
             </>
           ) : (

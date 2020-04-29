@@ -47,6 +47,7 @@ class App extends React.Component {
   header = {
     margin: 50,
   };
+
   fetchCategories() {
     VegevekService.getCategory().then((categories) => {
       this.setState({ categories, categoriesLoaded: true });
@@ -72,13 +73,6 @@ class App extends React.Component {
         this.handleDataFetch(this.state.selectedCategoryId);
       });
   }
-  // handleAddProductVariation = (productId, newProduct) => {
-  //   VegevekService.createProductVariation(productId, newProduct)
-  //     .then((newProduct) => {})
-  //     .then((response) => {
-  //       this.handleDataFetch(this.state.selectedCategoryId);
-  //     });
-  // };
 
   handleCategoryChange(categoryId) {
     this.setState({ selectedCategoryId: categoryId }, () =>
@@ -94,10 +88,18 @@ class App extends React.Component {
       });
   }
 
-  handleAddedProductVariation(productId, variationAttributes, quantity) {
+  handleAddedProductVariation(
+    productId,
+    variationAttributes,
+    regularPrice,
+    salePrice,
+    quantity
+  ) {
     VegevekService.createProductVariation(
       productId,
       variationAttributes,
+      regularPrice,
+      salePrice,
       quantity
     )
       .then((variation) => {})
@@ -105,20 +107,6 @@ class App extends React.Component {
         this.handleDataFetch(this.state.selectedCategoryId);
       });
   }
-
-  // handleAddedProductVariation(productId, variationAttributes, quantity) {
-  //   VegevekService.createProductVariation(productId, variationAttributes)
-  //     .then((variation) => {
-  //       let updatedVariation = { id: variation.id, stock_quantity: quantity };
-  //       return VegevekService.updateProductVariation(
-  //         productId,
-  //         updatedVariation
-  //       );
-  //     })
-  //     .then((response) => {
-  //       this.handleDataFetch(this.state.selectedCategoryId);
-  //     });
-  // }
 
   reloadData() {
     const key = Cookies.get("key");
@@ -179,10 +167,8 @@ class App extends React.Component {
               onProductChange={this.handleProductChange}
               onVariationChange={this.handleProductVariationsChange}
               onAddedProductVariation={this.handleAddedProductVariation}
-              // onAddNewProductVariation={this.handleAddProductVariation}
             />
-          ) : // <div class="ui active centered inline loader"></div>
-          null}
+          ) : null}
         </div>
       </>
     );

@@ -15,10 +15,18 @@ export class ProductList extends React.Component {
   handleVariationsChange(productId, variation) {
     this.props.onVariationChange(productId, variation);
   }
-  handleAddProductVariation = (productId, variationAttributes, quantity) => {
+  handleAddProductVariation = (
+    productId,
+    variationAttributes,
+    regularPrice,
+    salePrice,
+    quantity
+  ) => {
     this.props.onAddedProductVariation(
       productId,
       variationAttributes,
+      regularPrice,
+      salePrice,
       quantity
     );
   };
