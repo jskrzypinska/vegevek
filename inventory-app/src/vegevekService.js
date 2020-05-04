@@ -127,6 +127,7 @@ class VegevekService {
     );
     return VegevekService.api
       .put("products/" + productId + "/variations/" + variation.id, {
+        attributes: variation.attributes,
         regular_price: variation.regular_price,
         sale_price: variation.sale_price,
         stock_quantity: variation.stock_quantity,

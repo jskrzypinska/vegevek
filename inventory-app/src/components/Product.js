@@ -1,7 +1,6 @@
 import React from "react";
 import ProductVariations from "./ProductVariations";
 import Message from "./Message";
-import { Button } from "semantic-ui-react";
 import Cookies from "js-cookie";
 import AddProductVariation from "./AddProductVariation";
 
@@ -249,6 +248,7 @@ class Product extends React.Component {
             variations={this.state.product.product_variations}
             name={this.state.product.name}
             change={this.handleVariationChange}
+            attributes={this.state.product.attributes}
           />
         ) : null}
       </>

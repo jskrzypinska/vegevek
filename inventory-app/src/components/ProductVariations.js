@@ -10,6 +10,7 @@ class ProductVariations extends React.Component {
     this.handleResetVariation = this.handleResetVariation.bind(this);
     this.state = {
       variations: this.props.variations,
+      attributes: this.props.attributes,
       loading: false,
       showVariations: true,
     };
@@ -48,6 +49,9 @@ class ProductVariations extends React.Component {
     this.setState({ loading: true });
   }
 
+  handleVariationChange = (variation) => {
+    this.props.change(variation);
+  };
   showVariations = () => {
     this.setState({
       showVariations: !this.state.showVariations,
@@ -57,7 +61,7 @@ class ProductVariations extends React.Component {
   mapAttribute = (attribute) => {
     return (
       <div className={"ui label"} style={this.ui_label} key={attribute.id}>
-        {attribute.name.toUpperCase()} : {attribute.option}
+        {attribute.name} : {attribute.option}
       </div>
     );
   };
@@ -70,7 +74,11 @@ class ProductVariations extends React.Component {
         id={this.state.showVariations ? "" : "card_variation"}
         style={{ marginBottom: "30px" }}
       >
-        <ModalEditVariation />
+        <ModalEditVariation
+          variation={variation}
+          attributes={this.state.attributes}
+          change={this.handleVariationChange}
+        />
         <div className="content" style={{ padding: 0 }}>
           <p
             style={{ display: "inline-block", float: "right", marginRight: 14 }}

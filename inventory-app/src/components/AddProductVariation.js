@@ -8,13 +8,12 @@ export default class AddProductVariation extends Component {
     selectedVariations: [],
     regularPrice: "",
     salePrice: "",
-    quantity: "",
+    quantity: 0,
   };
 
   handleOpen = () => this.setState({ modalOpen: true });
 
   handleClose = () => {
-    console.log("Handle close");
     this.setState({ modalOpen: false });
   };
 
@@ -55,15 +54,14 @@ export default class AddProductVariation extends Component {
   };
 
   handleQuantityChange = (e) => {
-    this.setState({ quantity: parseInt(e.target.value) });
+    const stock_quantity = e.target.value ? parseInt(e.target.value) : 0;
+    this.setState({ quantity: stock_quantity });
   };
 
   handleRegularPriceChange = (e) => {
-    console.log("regularPrice", e.target.value);
     this.setState({ regularPrice: e.target.value });
   };
   handleSalePriceChange = (e) => {
-    console.log("salePrice", e.target.value);
     this.setState({ salePrice: e.target.value });
   };
 
