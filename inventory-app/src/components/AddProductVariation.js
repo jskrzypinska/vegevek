@@ -8,7 +8,7 @@ export default class AddProductVariation extends Component {
     selectedVariations: [],
     regularPrice: "",
     salePrice: "",
-    quantity: 0,
+    quantity: "",
   };
 
   handleOpen = () => this.setState({ modalOpen: true });
@@ -109,7 +109,7 @@ export default class AddProductVariation extends Component {
       >
         <Header
           icon="browser"
-          content={`Add variation ${this.props.product.name}`}
+          content={`Add variation ${this.props.product.name.toUpperCase()}`}
           style={{ margin: 5 }}
         />
         <Modal.Content
@@ -132,7 +132,7 @@ export default class AddProductVariation extends Component {
                   step="1"
                   pattern="\d+"
                 />
-                <div className="ui basic label label">Qty</div>
+                <div className="ui basic label label">Stock Quantity</div>
               </div>
               <div className="ui right labeled input" style={{ margin: 5 }}>
                 <input
@@ -143,7 +143,7 @@ export default class AddProductVariation extends Component {
                   value={this.state.regularPrice}
                   onChange={this.handleRegularPriceChange}
                 />
-                <div className="ui basic label">$</div>
+                <div className="ui basic label">Regular Price (zł)</div>
               </div>
               <div className="ui right labeled input" style={{ margin: 5 }}>
                 <input
@@ -154,7 +154,7 @@ export default class AddProductVariation extends Component {
                   value={this.state.salePrice}
                   onChange={this.handleSalePriceChange}
                 />
-                <div className="ui basic label">$</div>
+                <div className="ui basic label">Sale Price (zł)</div>
               </div>
             </>
           ) : (

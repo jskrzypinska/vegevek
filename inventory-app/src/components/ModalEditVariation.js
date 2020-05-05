@@ -6,10 +6,6 @@ class ModalEditVariation extends Component {
     modalOpen: false,
     attributes: this.props.attributes,
     variation: this.props.variation,
-    // selectedVariations: [],
-    // regularPrice: "",
-    // salePrice: "",
-    // quantity: "",
   };
 
   handleOpen = () => this.setState({ modalOpen: true });
@@ -111,7 +107,10 @@ class ModalEditVariation extends Component {
     return (
       <Modal
         trigger={
-          <Button style={{ fontSize: 15 }} onClick={this.handleOpen}>
+          <Button
+            style={{ fontSize: 15, backgroundColor: "lightsteelblue" }}
+            onClick={this.handleOpen}
+          >
             Edit
           </Button>
         }
@@ -120,7 +119,9 @@ class ModalEditVariation extends Component {
       >
         <Header
           icon="browser"
-          content={`Edit variation `}
+          content={`EDIT ${this.props.name.toUpperCase()} ID: ${
+            this.state.variation.id
+          } `}
           style={{ margin: 5 }}
         />
         <Modal.Content

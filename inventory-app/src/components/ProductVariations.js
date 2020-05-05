@@ -1,6 +1,6 @@
 import React from "react";
-import { Button } from "semantic-ui-react";
 import ModalEditVariation from "./ModalEditVariation";
+import VegevekService from "../vegevekService";
 
 class ProductVariations extends React.Component {
   constructor(props) {
@@ -12,7 +12,6 @@ class ProductVariations extends React.Component {
       variations: this.props.variations,
       attributes: this.props.attributes,
       loading: false,
-      showVariations: true,
     };
   }
 
@@ -24,37 +23,110 @@ class ProductVariations extends React.Component {
   };
 
   handleAddVariation(variationId) {
-    let variation = this.state.variations.find(
-      (variation) => variation.id === variationId
-    );
-    variation.stock_quantity++;
-    this.props.change(variation);
-    this.setState({ loading: true });
+    this.setState({ loading: true }, () => {
+      let variation = this.state.variations.find(
+        (variation) => variation.id === variationId
+      );
+      variation.stock_quantity++;
+      VegevekService.updateProductVariation(
+        this.props.productId,
+        variation
+      ).then((updatedVariation) => {
+        let elementIndex = this.state.variations.findIndex(
+          (v) => v.id === updatedVariation.id
+        );
+
+        if (elementIndex !== -1) {
+          this.setState((prev) => {
+            const variations = [...prev.variations];
+            variations[elementIndex] = updatedVariation;
+            return { variations: variations, loading: false };
+          });
+        } else {
+          alert(
+            "Błąd: nie znalezion modyfikowanej wariacji, id: " + variation.id
+          );
+        }
+      });
+    });
   }
 
   handleRemoveVariation(variationId) {
-    let variation = this.state.variations.find(
-      (variation) => variation.id === variationId
-    );
-    variation.stock_quantity--;
-    this.props.change(variation);
-    this.setState({ loading: true });
+    this.setState({ loading: true }, () => {
+      let variation = this.state.variations.find(
+        (variation) => variation.id === variationId
+      );
+      variation.stock_quantity--;
+      VegevekService.updateProductVariation(
+        this.props.productId,
+        variation
+      ).then((updatedVariation) => {
+        let elementIndex = this.state.variations.findIndex(
+          (v) => v.id === updatedVariation.id
+        );
+
+        if (elementIndex !== -1) {
+          this.setState((prev) => {
+            const variations = [...prev.variations];
+            variations[elementIndex] = updatedVariation;
+            return { variations: variations, loading: false };
+          });
+        } else {
+          alert(
+            "Błąd: nie znalezion modyfikowanej wariacji, id: " + variation.id
+          );
+        }
+      });
+    });
   }
   handleResetVariation(variationId) {
-    let variation = this.state.variations.find(
-      (variation) => variation.id === variationId
-    );
-    variation.stock_quantity = 0;
-    this.props.change(variation);
-    this.setState({ loading: true });
+    this.setState({ loading: true }, () => {
+      let variation = this.state.variations.find(
+        (variation) => variation.id === variationId
+      );
+      variation.stock_quantity = 0;
+      VegevekService.updateProductVariation(
+        this.props.productId,
+        variation
+      ).then((updatedVariation) => {
+        let elementIndex = this.state.variations.findIndex(
+          (v) => v.id === updatedVariation.id
+        );
+
+        if (elementIndex !== -1) {
+          this.setState((prev) => {
+            const variations = [...prev.variations];
+            variations[elementIndex] = updatedVariation;
+            return { variations: variations, loading: false };
+          });
+        } else {
+          alert(
+            "Błąd: nie znalezion modyfikowanej wariacji, id: " + variation.id
+          );
+        }
+      });
+    });
   }
 
-  handleVariationChange = (variation) => {
-    this.props.change(variation);
-  };
-  showVariations = () => {
-    this.setState({
-      showVariations: !this.state.showVariations,
+  handleVariationChange = (changedVariation) => {
+    VegevekService.updateProductVariation(
+      this.props.productId,
+      changedVariation
+    ).then((variation) => {
+      let elementIndex = this.state.variations.findIndex(
+        (v) => v.id === variation.id
+      );
+      if (elementIndex !== -1) {
+        this.setState((prev) => {
+          const variations = [...prev.variations];
+          variations[elementIndex] = variation;
+          return { variations: variations };
+        });
+      } else {
+        alert(
+          "Błąd: nie znalezion modyfikowanej wariacji, id: " + variation.id
+        );
+      }
     });
   };
 
@@ -68,16 +140,12 @@ class ProductVariations extends React.Component {
 
   mapVariation = (variation) => {
     return (
-      <div
-        key={variation.id}
-        className="ui card"
-        id={this.state.showVariations ? "" : "card_variation"}
-        style={{ marginBottom: "30px" }}
-      >
+      <div key={variation.id} className="ui card" style={{ width: "100%" }}>
         <ModalEditVariation
           variation={variation}
           attributes={this.state.attributes}
           change={this.handleVariationChange}
+          name={this.props.name}
         />
         <div className="content" style={{ padding: 0 }}>
           <p
@@ -122,6 +190,7 @@ class ProductVariations extends React.Component {
                 flexGrow: 3,
                 marginRight: 10,
                 marginLeft: 5,
+                textAlign: "center",
               }}
             >
               {this.props.name}
@@ -182,14 +251,7 @@ class ProductVariations extends React.Component {
 
   render() {
     if (this.state.variations.length > 0) {
-      return (
-        <>
-          <Button onClick={this.showVariations} color="teal">
-            {this.state.showVariations ? "Hide Variations" : "Show Variations"}
-          </Button>
-          {this.state.variations.map(this.mapVariation)}
-        </>
-      );
+      return <>{this.state.variations.map(this.mapVariation)}</>;
     } else {
       return null;
     }

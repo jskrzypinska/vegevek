@@ -77,15 +77,6 @@ class VegevekService {
     salePrice,
     quantity
   ) {
-    // console.log("createProductVariation, productId", productId);
-
-    // console.log(
-    //   "createProductVariation, variationAttributes",
-    //   variationAttributes
-    // );
-    // console.log("createProductVariation, regularPrice", regularPrice);
-    // console.log("createProductVariation, salePrice", salePrice);
-    // console.log("createProductVariation, quantity", quantity);
     return VegevekService.api
       .post(`products/${productId}/variations`, {
         attributes: variationAttributes,
@@ -134,8 +125,8 @@ class VegevekService {
       })
       .then((response) => {
         console.log("updateProductVariation: sukces", response.data);
-        const product = response.data;
-        return product;
+        const variation = response.data;
+        return variation;
       })
       .catch((error) => {
         // Invalid request, for 4xx and 5xx statuses

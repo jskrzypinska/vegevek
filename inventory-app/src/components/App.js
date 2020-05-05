@@ -1,5 +1,4 @@
 import React from "react";
-
 import VegevekService from "../vegevekService";
 import Category from "./Category";
 import { ProductList } from "./ProductList";
@@ -12,13 +11,9 @@ class App extends React.Component {
     super(props);
     this.fetchCategories = this.fetchCategories.bind(this);
     this.handleDataFetch = this.handleDataFetch.bind(this);
-    this.handleProductChange = this.handleProductChange.bind(this);
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handleModalClose = this.handleModalClose.bind(this);
     this.reloadData = this.reloadData.bind(this);
-    this.handleProductVariationsChange = this.handleProductVariationsChange.bind(
-      this
-    );
     this.handleAddedProductVariation = this.handleAddedProductVariation.bind(
       this
     );
@@ -66,26 +61,10 @@ class App extends React.Component {
     });
   }
 
-  handleProductChange(product) {
-    VegevekService.updateProduct(product)
-      .then((product) => {})
-      .then((response) => {
-        this.handleDataFetch(this.state.selectedCategoryId);
-      });
-  }
-
   handleCategoryChange(categoryId) {
     this.setState({ selectedCategoryId: categoryId }, () =>
       this.handleDataFetch(this.state.selectedCategoryId)
     );
-  }
-
-  handleProductVariationsChange(productId, variation) {
-    VegevekService.updateProductVariation(productId, variation)
-      .then((variation) => {})
-      .then((response) => {
-        this.handleDataFetch(this.state.selectedCategoryId);
-      });
   }
 
   handleAddedProductVariation(
@@ -164,8 +143,6 @@ class App extends React.Component {
           {this.state.productsLoaded ? (
             <ProductList
               products={this.state.products}
-              onProductChange={this.handleProductChange}
-              onVariationChange={this.handleProductVariationsChange}
               onAddedProductVariation={this.handleAddedProductVariation}
             />
           ) : null}

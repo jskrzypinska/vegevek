@@ -1,4 +1,5 @@
 import React from "react";
+import VegevekService from "../vegevekService";
 import ProductVariations from "./ProductVariations";
 import Message from "./Message";
 import Cookies from "js-cookie";
@@ -12,27 +13,22 @@ class Product extends React.Component {
     this.handleAdd = this.handleAdd.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleReset = this.handleReset.bind(this);
-    this.handleVariationChange = this.handleVariationChange.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.shouldNotShowPopup = this.shouldNotShowPopup.bind(this);
     this.handleAddedProductVariation = this.handleAddedProductVariation.bind(
       this
     );
+
     this.state = {
       product: this.props.product,
       loading: false,
       showOnlyVariantsProduct: false,
       open: false,
-
-      mode: "none", //none, reset, add, remove
+      showVariations: false,
+      mode: "none",
     };
   }
-  content_buttons = {
-    margin: 10,
-    display: "flex",
-    justifyContent: "space-between",
-  };
   content_header = {
     display: "flex",
     justifyContent: "space-around",
@@ -44,24 +40,34 @@ class Product extends React.Component {
   };
   header = {
     placeSelf: "center",
-    maxWidth: "50%",
     textAlign: "center",
     flex: 1,
+    marginRight: 10,
+  };
+
+  updateAndReloadProduct = (product) => {
+    VegevekService.updateProduct(product).then((updatedProduct) => {
+      VegevekService.getProductVariations(updatedProduct.id).then(
+        (variations) => {
+          updatedProduct.product_variations = variations;
+          this.setState((prevState) => {
+            return {
+              product: updatedProduct,
+              loading: false,
+            };
+          });
+        }
+      );
+    });
   };
 
   handleAdd() {
     if (this.shouldNotShowPopup()) {
-      this.setState(
-        (prevState) => {
-          let product = { ...prevState.product };
-          product.stock_quantity++;
-          return {
-            product: product,
-            loading: true,
-          };
-        },
-        () => this.props.onQuantityChange(this.state.product)
-      );
+      this.setState({ loading: true }, () => {
+        let copyProduct = { ...this.state.product };
+        copyProduct.stock_quantity++;
+        this.updateAndReloadProduct(copyProduct);
+      });
     } else {
       this.setState({
         open: true,
@@ -72,17 +78,11 @@ class Product extends React.Component {
 
   handleRemove() {
     if (this.shouldNotShowPopup()) {
-      this.setState(
-        (prevState) => {
-          let product = { ...prevState.product };
-          product.stock_quantity--;
-          return {
-            product: product,
-            loading: true,
-          };
-        },
-        () => this.props.onQuantityChange(this.state.product)
-      );
+      this.setState({ loading: true }, () => {
+        let copyProduct = { ...this.state.product };
+        copyProduct.stock_quantity--;
+        this.updateAndReloadProduct(copyProduct);
+      });
     } else {
       this.setState({
         open: true,
@@ -93,27 +93,17 @@ class Product extends React.Component {
 
   handleReset() {
     if (this.shouldNotShowPopup()) {
-      this.setState(
-        (prevState) => {
-          let product = { ...prevState.product };
-          product.stock_quantity = 0;
-          return {
-            product: product,
-            loading: true,
-          };
-        },
-        () => this.props.onQuantityChange(this.state.product)
-      );
+      this.setState({ loading: true }, () => {
+        let copyProduct = { ...this.state.product };
+        copyProduct.stock_quantity = 0;
+        this.updateAndReloadProduct(copyProduct);
+      });
     } else {
       this.setState({
         open: true,
         mode: "reset",
       });
     }
-  }
-
-  handleVariationChange(variation) {
-    this.props.onVariationChange(this.state.product.id, variation);
   }
 
   handleAddedProductVariation = (
@@ -175,6 +165,12 @@ class Product extends React.Component {
     return dontShowPopup;
   }
 
+  handleChangeShowVariations = (e) => {
+    this.setState({
+      showVariations: !this.state.showVariations,
+    });
+  };
+
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.product !== this.props.product) {
       this.setState({
@@ -185,6 +181,7 @@ class Product extends React.Component {
   }
 
   render() {
+    const { product } = this.state;
     return (
       <>
         <div className="ui card" style={{ marginTop: 30 }}>
@@ -197,60 +194,112 @@ class Product extends React.Component {
             />
           ) : null}
           <AddProductVariation
-            attributes={this.state.product.attributes}
+            attributes={product.attributes}
             onSave={this.handleAddedProductVariation}
-            product={this.state.product}
+            product={product}
           />
           {this.state.showOnlyVariantsProduct ? null : (
             <div className="content" style={{ padding: 0 }}>
+              <div style={{ marginBottom: 35 }}>
+                <p
+                  style={{
+                    display: "inline-block",
+                    float: "right",
+                    marginRight: 14,
+                  }}
+                >
+                  id: {product.id}
+                </p>
+              </div>
               <div className="extra content" style={this.content_header}>
-                <div style={this.header}>{this.state.product.name}</div>
-                <div className="ui red small statistic" style={{ margin: 0 }}>
-                  <div className="value">
-                    {this.state.product.stock_quantity}
-                  </div>
-                  <div className="label">Qty</div>
-                </div>
+                {product.variations.length > 0 ? (
+                  <button
+                    className="ui primary button"
+                    onClick={this.handleChangeShowVariations}
+                    style={{
+                      fontSize: "medium",
+                      backgroundColor: "white",
+                      color: "black",
+                      marginLeft: 10,
+                    }}
+                  >
+                    <i
+                      aria-hidden="true"
+                      className="angle double down icon"
+                      style={{ marginRight: 10, fontSize: "larger" }}
+                    ></i>
+                    <div
+                      className="ui mini black horizontal statistic"
+                      style={{ margin: "auto" }}
+                    >
+                      <div className="value"> {product.variations.length}</div>
+
+                      <p
+                        style={{
+                          marginTop: 8,
+                          fontSize: "smaller",
+                          fontWeight: 100,
+                          marginLeft: 5,
+                        }}
+                      >
+                        variations
+                      </p>
+                    </div>
+                  </button>
+                ) : null}
+                <div style={this.header}>{product.name}</div>
               </div>
 
-              <div className="extra content" style={this.content_buttons}>
-                <button
-                  style={{ margin: 18 }}
-                  className="big ui  circular  basic positive button"
-                  onClick={this.handleAdd}
-                  disabled={this.state.loading}
+              <div style={{ display: "flex", marginTop: 30, marginBottom: 20 }}>
+                <div
+                  className="ui tiny black horizontal statistic"
+                  style={{ margin: "auto" }}
                 >
-                  <i className="fas fa-plus"></i>
-                </button>
-                <button
-                  style={{ margin: 18 }}
-                  className="big ui circular basic red button"
-                  onClick={this.handleRemove}
-                  disabled={this.state.loading}
-                >
-                  {this.state.loading} <i className="fas fa-minus"></i>
-                </button>
-                <button
-                  style={{ margin: 18 }}
-                  className="big ui  circular black basic button"
-                  onClick={this.handleReset}
-                  disabled={this.state.loading}
-                >
-                  0
-                </button>
+                  <div className="value">{product.stock_quantity}</div>
+
+                  <p style={{ marginTop: 10, fontSize: "smaller" }}>Qty</p>
+                </div>
+                <div>
+                  <button
+                    style={{ margin: 10, height: 40, width: 70 }}
+                    className="large ui circular basic positive button"
+                    onClick={this.handleAdd}
+                    disabled={this.state.loading}
+                  >
+                    <i className="fas fa-plus"></i>
+                  </button>
+                  <button
+                    style={{ margin: 10, height: 40, width: 70 }}
+                    className="large ui circular basic red button"
+                    onClick={this.handleRemove}
+                    disabled={this.state.loading}
+                  >
+                    {this.state.loading} <i className="fas fa-minus"></i>
+                  </button>
+                  <button
+                    style={{ margin: 10, height: 40, width: 70 }}
+                    className="large ui circular black basic button"
+                    onClick={this.handleReset}
+                    disabled={this.state.loading}
+                  >
+                    0
+                  </button>
+                </div>
               </div>
             </div>
           )}
+          <div id={this.state.showVariations ? "" : "card_variation"}>
+            {product.product_variations ? (
+              <ProductVariations
+                variations={product.product_variations}
+                name={product.name}
+                productId={product.id}
+                change={this.handleVariationChange}
+                attributes={product.attributes}
+              />
+            ) : null}
+          </div>
         </div>
-
-        {this.state.product.product_variations ? (
-          <ProductVariations
-            variations={this.state.product.product_variations}
-            name={this.state.product.name}
-            change={this.handleVariationChange}
-            attributes={this.state.product.attributes}
-          />
-        ) : null}
       </>
     );
   }
