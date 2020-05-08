@@ -83,6 +83,7 @@ class ModalEditVariation extends Component {
   };
 
   mapAttribute = (attr) => {
+    // console.log("attr.id", attr.id);
     const variationAttribute = this.state.variation.attributes.find(
       (a) => a.id === attr.id
     );
@@ -91,8 +92,9 @@ class ModalEditVariation extends Component {
       <Dropdown
         onChange={this.handleChange}
         key={attr.id}
-        clearable
         options={this.mapToDropdown(attr.options, attr.id)}
+        fluid
+        search
         selection
         placeholder={attr.name}
         style={{ margin: 5 }}
@@ -103,6 +105,7 @@ class ModalEditVariation extends Component {
 
   render() {
     const { attributes, modalOpen } = this.state;
+    // console.log(this.state.attributes);
 
     return (
       <Modal
@@ -155,7 +158,15 @@ class ModalEditVariation extends Component {
                   value={this.state.variation.regular_price}
                   onChange={this.handleRegularPriceChange}
                 />
-                <div className="ui basic label">Regular Price (zł)</div>
+                <div className="ui basic label">
+                  Regular Price(
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: this.props.currentCurrency.symbol,
+                    }}
+                  ></span>
+                  )
+                </div>
               </div>
               <div className="ui right labeled input" style={{ margin: 5 }}>
                 <input
@@ -166,7 +177,15 @@ class ModalEditVariation extends Component {
                   value={this.state.variation.sale_price}
                   onChange={this.handleSalePriceChange}
                 />
-                <div className="ui basic label">Sale Price (zł)</div>
+                <div className="ui basic label">
+                  Sale Price(
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: this.props.currentCurrency.symbol,
+                    }}
+                  ></span>
+                  )
+                </div>
               </div>
             </>
           ) : (

@@ -12,6 +12,7 @@ class ProductVariations extends React.Component {
       variations: this.props.variations,
       attributes: this.props.attributes,
       loading: false,
+      currentCurrency: "",
     };
   }
 
@@ -20,6 +21,53 @@ class ProductVariations extends React.Component {
     textAlign: "center",
     justifyContent: "center",
     flex: 1,
+  };
+  p_variationId = {
+    display: "inline-block",
+    float: "right",
+    marginRight: 14,
+  };
+  container_price = {
+    display: "flex",
+    marginTop: 30,
+    marginBottom: 30,
+    marginLeft: 50,
+  };
+  p_currency = {
+    fontSize: "smaller",
+    marginTop: 5,
+  };
+  container_salePrice = {
+    margin: 0,
+    marginLeft: 10,
+    flexGrow: 1,
+  };
+  container_name = {
+    margin: 0,
+    fontSize: "1.3rem",
+    fontWeight: 500,
+    flexGrow: 3,
+    marginRight: 10,
+    marginLeft: 5,
+    textAlign: "center",
+  };
+  container_attributes = {
+    display: "flex",
+    margin: 15,
+  };
+  container_stockQty = {
+    display: "flex",
+    marginTop: 30,
+    marginBottom: 10,
+  };
+  p_qty = {
+    marginTop: 10,
+    fontSize: "smaller",
+  };
+  btn_actions = {
+    margin: 5,
+    height: 40,
+    width: 70,
   };
 
   handleAddVariation(variationId) {
@@ -129,6 +177,11 @@ class ProductVariations extends React.Component {
       }
     });
   };
+  handleCurrencyFetch() {
+    VegevekService.getCurrentCurrency().then((currentCurrency) => {
+      this.setState({ currentCurrency });
+    });
+  }
 
   mapAttribute = (attribute) => {
     return (
@@ -146,22 +199,12 @@ class ProductVariations extends React.Component {
           attributes={this.state.attributes}
           change={this.handleVariationChange}
           name={this.props.name}
+          currentCurrency={this.state.currentCurrency}
         />
         <div className="content" style={{ padding: 0 }}>
-          <p
-            style={{ display: "inline-block", float: "right", marginRight: 14 }}
-          >
-            id: {variation.id}
-          </p>
+          <p style={this.p_variationId}>id: {variation.id}</p>
 
-          <div
-            style={{
-              display: "flex",
-              marginTop: 30,
-              marginBottom: 30,
-              marginLeft: 50,
-            }}
-          >
+          <div style={this.container_price}>
             <div className="ui mini horizontal statistic" style={{ margin: 0 }}>
               <div
                 className="value"
@@ -170,51 +213,43 @@ class ProductVariations extends React.Component {
                 {variation.regular_price}
               </div>
               {variation.regular_price > 0 ? (
-                <p style={{ fontSize: "smaller", marginTop: 5 }}>zł</p>
+                <p
+                  style={this.p_currency}
+                  dangerouslySetInnerHTML={{
+                    __html: this.state.currentCurrency.symbol,
+                  }}
+                ></p>
               ) : null}
             </div>
             <div
               className="ui mini horizontal statistic"
-              style={{ margin: 0, marginLeft: 10, flexGrow: 1 }}
+              style={this.container_salePrice}
             >
               <div className="value">{variation.sale_price}</div>
               {variation.sale_price > 0 ? (
-                <p style={{ fontSize: "smaller", marginTop: 5 }}>zł</p>
+                <p
+                  style={this.p_currency}
+                  dangerouslySetInnerHTML={{
+                    __html: this.state.currentCurrency.symbol,
+                  }}
+                ></p>
               ) : null}
             </div>
-            <div
-              style={{
-                margin: 0,
-                fontSize: "1.3rem",
-                fontWeight: 500,
-                flexGrow: 3,
-                marginRight: 10,
-                marginLeft: 5,
-                textAlign: "center",
-              }}
-            >
-              {this.props.name}
-            </div>
+            <div style={this.container_name}>{this.props.name}</div>
           </div>
 
-          <div
-            className="extra content"
-            style={{
-              display: "flex",
-              margin: 15,
-            }}
-          >
+          <div className="extra content" style={this.container_attributes}>
             {variation.attributes.map(this.mapAttribute)}
           </div>
 
-          <div style={{ display: "flex", marginTop: 30, marginBottom: 10 }}>
+          <div style={this.container_stockQty}>
             <div
               className="ui small black horizontal statistic"
               style={{ margin: "auto" }}
             >
               <div className="value">{variation.stock_quantity}</div>
 
-              <p style={{ marginTop: 10, fontSize: "smaller" }}>Qty</p>
+              <p style={this.p_qty}>Qty</p>
             </div>
 
             <div>
@@ -222,7 +257,7 @@ class ProductVariations extends React.Component {
                 className="large ui circular basic positive button"
                 onClick={() => this.handleAddVariation(variation.id)}
                 disabled={this.state.loading}
-                style={{ margin: 10, height: 40, width: 70 }}
+                style={this.btn_actions}
               >
                 <i className="fas fa-plus"></i>
               </button>
@@ -230,7 +265,7 @@ class ProductVariations extends React.Component {
                 className="large ui circular basic red button"
                 onClick={() => this.handleRemoveVariation(variation.id)}
                 disabled={this.state.loading}
-                style={{ margin: 10, height: 40, width: 70 }}
+                style={this.btn_actions}
               >
                 <i className="fas fa-minus"></i>
               </button>
@@ -238,7 +273,7 @@ class ProductVariations extends React.Component {
                 className="large ui circular basic black  button"
                 onClick={() => this.handleResetVariation(variation.id)}
                 disabled={this.state.loading}
-                style={{ margin: 10, height: 40, width: 70 }}
+                style={this.btn_actions}
               >
                 0
               </button>
@@ -248,6 +283,10 @@ class ProductVariations extends React.Component {
       </div>
     );
   };
+
+  componentDidMount() {
+    this.handleCurrencyFetch();
+  }
 
   render() {
     if (this.state.variations.length > 0) {

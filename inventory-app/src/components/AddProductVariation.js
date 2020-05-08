@@ -1,17 +1,26 @@
 import React, { Component } from "react";
+import VegevekService from "../vegevekService";
 import { Button, Header, Modal, Dropdown } from "semantic-ui-react";
 
 export default class AddProductVariation extends Component {
   state = {
     modalOpen: false,
-    attributes: this.props.attributes,
     selectedVariations: [],
     regularPrice: "",
     salePrice: "",
-    quantity: "",
+    quantity: null,
+    currentCurrency: "",
+    attributeTerms: [],
+    loadData: false,
+
+    attributesWithTerms: [],
   };
 
-  handleOpen = () => this.setState({ modalOpen: true });
+  handleOpen = () => {
+    this.setState({ modalOpen: true });
+    this.handleCurrencyFetch();
+    this.loadData();
+  };
 
   handleClose = () => {
     this.setState({ modalOpen: false });
@@ -65,29 +74,71 @@ export default class AddProductVariation extends Component {
     this.setState({ salePrice: e.target.value });
   };
 
-  mapToDropdown = (options, attributeId) => {
-    // console.log("options", options);
+  loadData = () => {
+    this.setState(
+      {
+        loadData: true,
+      },
+      () => {
+        VegevekService.getProductAttributes().then((productAttributes) => {
+          this.setState({
+            attributesWithTerms: productAttributes,
+            loadData: false,
+          });
+        });
+      }
+    );
+  };
 
-    return options.map((attrOption, index) => {
-      // console.log("obj", obj);
-      const obj = {
-        attrid: attributeId,
-        key: attrOption,
-        text: attrOption,
-        value: attrOption,
-      };
-      return obj;
+  handleCurrencyFetch = () => {
+    VegevekService.getCurrentCurrency().then((currentCurrency) => {
+      this.setState({ currentCurrency });
     });
   };
 
+  mapToDropdown = (attributeWithTerms) => {
+    if (attributeWithTerms.terms) {
+      return attributeWithTerms.terms.map((attrOption, index) => {
+        const obj = {
+          attrid: attributeWithTerms.id,
+          key: attrOption.name,
+          text: attrOption.name,
+          value: attrOption.name,
+        };
+        return obj;
+      });
+    } else return [];
+  };
+
+  handleSearchChange = (e, b) => {
+    var attributeId = b.attrid;
+    var searchValue = e.target.value;
+    VegevekService.getAttributeTerms(attributeId, searchValue).then(
+      (attributeTerms) => {
+        const attrTerms = this.state.attributesWithTerms;
+        const currentAttribute = attrTerms.find((a) => a.id == attributeId);
+        currentAttribute.terms = attributeTerms;
+        this.setState({
+          attributesWithTerms: attrTerms,
+        });
+      }
+    );
+  };
+
   mapAttribute = (attr) => {
+    const currentAttribute = this.state.attributesWithTerms.find(
+      (a) => a.id == attr.id
+    );
     return (
       <Dropdown
         onChange={this.handleChange}
         key={attr.id}
-        clearable
-        options={this.mapToDropdown(attr.options, attr.id)}
+        fluid
+        search
         selection
+        options={this.mapToDropdown(currentAttribute)}
+        attrid={attr.id}
+        onSearchChange={this.handleSearchChange}
         placeholder={attr.name}
         style={{ margin: 5 }}
       />
@@ -95,7 +146,7 @@ export default class AddProductVariation extends Component {
   };
 
   render() {
-    const { attributes, modalOpen } = this.state;
+    const { attributesWithTerms, modalOpen } = this.state;
 
     return (
       <Modal
@@ -112,53 +163,80 @@ export default class AddProductVariation extends Component {
           content={`Add variation ${this.props.product.name.toUpperCase()}`}
           style={{ margin: 5 }}
         />
+
         <Modal.Content
           style={{
             display: "flex",
             flexDirection: "column",
           }}
         >
-          {attributes.length > 0 ? (
-            <>
-              {attributes.map(this.mapAttribute)}
-              <div className="ui right labeled input" style={{ margin: 5 }}>
-                <input
-                  type="number"
-                  placeholder="Enter amount..."
-                  min="0"
-                  max="100"
-                  value={this.state.quantity}
-                  onChange={this.handleQuantityChange}
-                  step="1"
-                  pattern="\d+"
-                />
-                <div className="ui basic label label">Stock Quantity</div>
+          {this.state.loadData ? (
+            <div className="ui active transition visible inverted dimmer">
+              <div className="content">
+                <div className="ui inverted text loader">Loading</div>
               </div>
-              <div className="ui right labeled input" style={{ margin: 5 }}>
-                <input
-                  type="number"
-                  placeholder="Enter regular price"
-                  min="0"
-                  max="100"
-                  value={this.state.regularPrice}
-                  onChange={this.handleRegularPriceChange}
-                />
-                <div className="ui basic label">Regular Price (zł)</div>
-              </div>
-              <div className="ui right labeled input" style={{ margin: 5 }}>
-                <input
-                  type="number"
-                  placeholder="Enter sale price"
-                  min="0"
-                  max="100"
-                  value={this.state.salePrice}
-                  onChange={this.handleSalePriceChange}
-                />
-                <div className="ui basic label">Sale Price (zł)</div>
-              </div>
-            </>
+            </div>
           ) : (
-            <h4>No attributes</h4>
+            <>
+              {attributesWithTerms.length > 0 ? (
+                <>
+                  {attributesWithTerms.map(this.mapAttribute)}
+                  <div className="ui right labeled input" style={{ margin: 5 }}>
+                    <input
+                      type="number"
+                      placeholder="Enter amount..."
+                      min="0"
+                      max="100"
+                      value={this.state.quantity}
+                      onChange={this.handleQuantityChange}
+                      step="1"
+                      pattern="\d+"
+                    />
+                    <div className="ui basic label label">Stock Quantity</div>
+                  </div>
+                  <div className="ui right labeled input" style={{ margin: 5 }}>
+                    <input
+                      type="number"
+                      placeholder="Enter regular price"
+                      min="0"
+                      max="100"
+                      value={this.state.regularPrice}
+                      onChange={this.handleRegularPriceChange}
+                    />
+                    <div className="ui basic label">
+                      Regular Price (
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: this.state.currentCurrency.symbol,
+                        }}
+                      ></span>
+                      )
+                    </div>
+                  </div>
+                  <div className="ui right labeled input" style={{ margin: 5 }}>
+                    <input
+                      type="number"
+                      placeholder="Enter sale price"
+                      min="0"
+                      max="100"
+                      value={this.state.salePrice}
+                      onChange={this.handleSalePriceChange}
+                    />
+                    <div className="ui basic label">
+                      Sale Price (
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: this.state.currentCurrency.symbol,
+                        }}
+                      ></span>
+                      )
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <h4>No attributes</h4>
+              )}
+            </>
           )}
         </Modal.Content>
         <Modal.Actions>

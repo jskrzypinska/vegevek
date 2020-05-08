@@ -133,6 +133,46 @@ class VegevekService {
         console.log("updateProductVariations: bład", error);
       });
   }
+
+  static async getProductAttributes() {
+    return VegevekService.api
+      .get("products/attributes")
+      .then((response) => {
+        // console.log("getProductAttributes: sukces", response.data);
+        const productAttributes = response.data;
+        return productAttributes;
+      })
+      .catch((error) => {
+        console.log("getProductAttributes", error);
+      });
+  }
+  static async getAttributeTerms(attributeId, searchValue) {
+    return VegevekService.api
+      .get(`products/attributes/${attributeId}/terms`, {
+        per_page: 100,
+        search: searchValue,
+      })
+      .then((response) => {
+        // console.log("getAttributeTerms: sukces", response.data);
+        const attributeTerms = response.data;
+        return attributeTerms;
+      })
+      .catch((error) => {
+        console.log("getAttributeTerms", error);
+      });
+  }
+  static async getCurrentCurrency() {
+    return VegevekService.api
+      .get("data/currencies/current")
+      .then((response) => {
+        // console.log("getCurrentCurrency: sukces", response.data);
+        const currentCurrency = response.data;
+        return currentCurrency;
+      })
+      .catch((error) => {
+        // console.log("getCurrentCurrency", error);
+      });
+  }
 }
 
 export default VegevekService;

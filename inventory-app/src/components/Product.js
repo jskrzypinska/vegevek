@@ -44,6 +44,39 @@ class Product extends React.Component {
     flex: 1,
     marginRight: 10,
   };
+  p_prod_id = {
+    display: "inline-block",
+    float: "right",
+    marginRight: 14,
+  };
+  btn_variations_lgth = {
+    fontSize: "medium",
+    backgroundColor: "white",
+    color: "black",
+    marginLeft: 10,
+  };
+  p_variations = {
+    marginTop: 8,
+    fontSize: "smaller",
+    fontWeight: 100,
+    marginLeft: 5,
+  };
+  btn_actions = {
+    marginLeft: 7,
+    height: 40,
+    width: 70,
+  };
+  container_stockQty = {
+    display: "flex",
+    marginTop: 30,
+    marginBottom: 20,
+  };
+
+  // handleAttributesTerm = (attributeId) => {
+  //   VegevekService.getAttributeTerms(attributeId).then((attributeTerms) => {
+  //     this.setState({ attributeTerms });
+  //   });
+  // };
 
   updateAndReloadProduct = (product) => {
     VegevekService.updateProduct(product).then((updatedProduct) => {
@@ -195,62 +228,40 @@ class Product extends React.Component {
           ) : null}
           <AddProductVariation
             attributes={product.attributes}
-            onSave={this.handleAddedProductVariation}
             product={product}
+            onSave={this.handleAddedProductVariation}
           />
           {this.state.showOnlyVariantsProduct ? null : (
             <div className="content" style={{ padding: 0 }}>
               <div style={{ marginBottom: 35 }}>
-                <p
-                  style={{
-                    display: "inline-block",
-                    float: "right",
-                    marginRight: 14,
-                  }}
-                >
-                  id: {product.id}
-                </p>
+                <p style={this.p_prod_id}>id: {product.id}</p>
               </div>
               <div className="extra content" style={this.content_header}>
-                {product.variations.length > 0 ? (
-                  <button
-                    className="ui primary button"
-                    onClick={this.handleChangeShowVariations}
-                    style={{
-                      fontSize: "medium",
-                      backgroundColor: "white",
-                      color: "black",
-                      marginLeft: 10,
-                    }}
+                {/* {product.variations.length > 0 ? ( */}
+                <button
+                  className="ui primary button"
+                  onClick={this.handleChangeShowVariations}
+                  style={this.btn_variations_lgth}
+                >
+                  <i
+                    aria-hidden="true"
+                    className="angle double down icon"
+                    style={{ marginRight: 10, fontSize: "larger" }}
+                  ></i>
+                  <div
+                    className="ui mini black horizontal statistic"
+                    style={{ margin: "auto" }}
                   >
-                    <i
-                      aria-hidden="true"
-                      className="angle double down icon"
-                      style={{ marginRight: 10, fontSize: "larger" }}
-                    ></i>
-                    <div
-                      className="ui mini black horizontal statistic"
-                      style={{ margin: "auto" }}
-                    >
-                      <div className="value"> {product.variations.length}</div>
+                    <div className="value"> {product.variations.length}</div>
 
-                      <p
-                        style={{
-                          marginTop: 8,
-                          fontSize: "smaller",
-                          fontWeight: 100,
-                          marginLeft: 5,
-                        }}
-                      >
-                        variations
-                      </p>
-                    </div>
-                  </button>
-                ) : null}
+                    <p style={this.p_variations}>variations</p>
+                  </div>
+                </button>
+                {/* ) : null} */}
                 <div style={this.header}>{product.name}</div>
               </div>
 
-              <div style={{ display: "flex", marginTop: 30, marginBottom: 20 }}>
+              <div style={this.container_stockQty}>
                 <div
                   className="ui tiny black horizontal statistic"
                   style={{ margin: "auto" }}
@@ -261,7 +272,7 @@ class Product extends React.Component {
                 </div>
                 <div>
                   <button
-                    style={{ margin: 10, height: 40, width: 70 }}
+                    style={this.btn_actions}
                     className="large ui circular basic positive button"
                     onClick={this.handleAdd}
                     disabled={this.state.loading}
@@ -269,7 +280,7 @@ class Product extends React.Component {
                     <i className="fas fa-plus"></i>
                   </button>
                   <button
-                    style={{ margin: 10, height: 40, width: 70 }}
+                    style={this.btn_actions}
                     className="large ui circular basic red button"
                     onClick={this.handleRemove}
                     disabled={this.state.loading}
@@ -277,7 +288,7 @@ class Product extends React.Component {
                     {this.state.loading} <i className="fas fa-minus"></i>
                   </button>
                   <button
-                    style={{ margin: 10, height: 40, width: 70 }}
+                    style={this.btn_actions}
                     className="large ui circular black basic button"
                     onClick={this.handleReset}
                     disabled={this.state.loading}
