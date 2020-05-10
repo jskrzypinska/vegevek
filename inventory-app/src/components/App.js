@@ -74,17 +74,69 @@ class App extends React.Component {
     salePrice,
     quantity
   ) {
-    VegevekService.createProductVariation(
-      productId,
-      variationAttributes,
-      regularPrice,
-      salePrice,
-      quantity
-    )
-      .then((variation) => {})
-      .then((response) => {
-        this.handleDataFetch(this.state.selectedCategoryId);
+    const product = this.state.products.find((p) => p.id === productId);
+    let productModified = false;
+
+    if (product.type !== "variable") {
+      product.type = "variable";
+      productModified = true;
+    }
+
+    for (let varAttr of variationAttributes) {
+      let attribute = product.attributes.find((a) => a.id === varAttr.id);
+      if (attribute == undefined) {
+        //let updatedProduct = { attributes: [] };
+        product.attributes.push({
+          id: varAttr.id,
+          options: [varAttr.option],
+          variation: true,
+        });
+        productModified = true;
+      } else {
+        if (!attribute.variation) {
+          attribute.variation = true;
+          productModified = true;
+        }
+
+        let selectedOption = attribute.options.find((o) => o == varAttr.option);
+        if (selectedOption == undefined) {
+          attribute.options.push(varAttr.option);
+          productModified = true;
+        }
+      }
+    }
+
+    if (productModified) {
+      VegevekService.updateProductAttributes({
+        id: product.id,
+        attributes: product.attributes,
+        type: product.type,
+      }).then((product) => {
+        VegevekService.createProductVariation(
+          productId,
+          variationAttributes,
+          regularPrice,
+          salePrice,
+          quantity
+        )
+          .then((variation) => {})
+          .then((response) => {
+            this.handleDataFetch(this.state.selectedCategoryId);
+          });
       });
+    } else {
+      VegevekService.createProductVariation(
+        productId,
+        variationAttributes,
+        regularPrice,
+        salePrice,
+        quantity
+      )
+        .then((variation) => {})
+        .then((response) => {
+          this.handleDataFetch(this.state.selectedCategoryId);
+        });
+    }
   }
 
   reloadData() {

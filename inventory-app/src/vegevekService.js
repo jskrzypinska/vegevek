@@ -110,6 +110,22 @@ class VegevekService {
       });
   }
 
+  static async updateProductAttributes(product) {
+    return VegevekService.api
+      .put("products/" + product.id, {
+        attributes: product.attributes,
+        type: product.type,
+      })
+      .then((response) => {
+        const product = response.data;
+        return product;
+      })
+      .catch((error) => {
+        // Invalid request, for 4xx and 5xx statuses
+        // console.log("updateProduct: bład", error);
+      });
+  }
+
   static async updateProductVariation(productId, variation) {
     console.log(
       "updateProductVariation, productId, variation",
