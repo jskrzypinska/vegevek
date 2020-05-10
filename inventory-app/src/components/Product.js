@@ -299,7 +299,10 @@ class Product extends React.Component {
               </div>
             </div>
           )}
-          <div id={this.state.showVariations ? "" : "card_variation"}>
+          <div
+            id={this.state.showVariations ? "" : "card_variation"}
+            style={{ marginTop: 30 }}
+          >
             {product.product_variations ? (
               <ProductVariations
                 variations={product.product_variations}

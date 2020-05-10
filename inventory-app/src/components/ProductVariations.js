@@ -30,8 +30,7 @@ class ProductVariations extends React.Component {
   container_price = {
     display: "flex",
     marginTop: 30,
-    marginBottom: 30,
-    marginLeft: 50,
+    marginLeft: 20,
   };
   p_currency = {
     fontSize: "smaller",
@@ -48,8 +47,8 @@ class ProductVariations extends React.Component {
     fontWeight: 500,
     flexGrow: 3,
     marginRight: 10,
-    marginLeft: 5,
-    textAlign: "center",
+    marginLeft: 10,
+    // textAlign: "center",
   };
   container_attributes = {
     display: "flex",
@@ -212,6 +211,7 @@ class ProductVariations extends React.Component {
               >
                 {variation.regular_price}
               </div>
+
               {variation.regular_price > 0 ? (
                 <p
                   style={this.p_currency}
