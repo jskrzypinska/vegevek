@@ -310,6 +310,7 @@ class Product extends React.Component {
                 productId={product.id}
                 change={this.handleVariationChange}
                 attributes={product.attributes}
+                product={this.state.product}
               />
             ) : null}
           </div>

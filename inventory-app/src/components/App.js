@@ -84,8 +84,7 @@ class App extends React.Component {
 
     for (let varAttr of variationAttributes) {
       let attribute = product.attributes.find((a) => a.id === varAttr.id);
-      if (attribute == undefined) {
-        //let updatedProduct = { attributes: [] };
+      if (attribute === undefined) {
         product.attributes.push({
           id: varAttr.id,
           options: [varAttr.option],
@@ -98,8 +97,10 @@ class App extends React.Component {
           productModified = true;
         }
 
-        let selectedOption = attribute.options.find((o) => o == varAttr.option);
-        if (selectedOption == undefined) {
+        let selectedOption = attribute.options.find(
+          (o) => o === varAttr.option
+        );
+        if (selectedOption === undefined) {
           attribute.options.push(varAttr.option);
           productModified = true;
         }

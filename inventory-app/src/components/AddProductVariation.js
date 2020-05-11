@@ -8,11 +8,10 @@ export default class AddProductVariation extends Component {
     selectedVariations: [],
     regularPrice: "",
     salePrice: "",
-    quantity: null,
+    quantity: 0,
     currentCurrency: "",
     attributeTerms: [],
     loadData: false,
-
     attributesWithTerms: [],
   };
 
@@ -116,7 +115,7 @@ export default class AddProductVariation extends Component {
     VegevekService.getAttributeTerms(attributeId, searchValue).then(
       (attributeTerms) => {
         const attrTerms = this.state.attributesWithTerms;
-        const currentAttribute = attrTerms.find((a) => a.id == attributeId);
+        const currentAttribute = attrTerms.find((a) => a.id === attributeId);
         currentAttribute.terms = attributeTerms;
         this.setState({
           attributesWithTerms: attrTerms,
@@ -127,7 +126,7 @@ export default class AddProductVariation extends Component {
 
   mapAttribute = (attr) => {
     const currentAttribute = this.state.attributesWithTerms.find(
-      (a) => a.id == attr.id
+      (a) => a.id === attr.id
     );
     return (
       <Dropdown

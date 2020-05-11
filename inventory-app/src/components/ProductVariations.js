@@ -156,25 +156,81 @@ class ProductVariations extends React.Component {
   }
 
   handleVariationChange = (changedVariation) => {
-    VegevekService.updateProductVariation(
-      this.props.productId,
-      changedVariation
-    ).then((variation) => {
-      let elementIndex = this.state.variations.findIndex(
-        (v) => v.id === variation.id
-      );
-      if (elementIndex !== -1) {
-        this.setState((prev) => {
-          const variations = [...prev.variations];
-          variations[elementIndex] = variation;
-          return { variations: variations };
+    const product = this.props.product;
+    let productModified = false;
+
+    for (let varAttr of changedVariation.attributes) {
+      let attribute = product.attributes.find((a) => a.id === varAttr.id);
+      if (attribute === undefined) {
+        product.attributes.push({
+          id: varAttr.id,
+          options: [varAttr.option],
+          variation: true,
         });
+        productModified = true;
       } else {
-        alert(
-          "Błąd: nie znalezion modyfikowanej wariacji, id: " + variation.id
+        if (!attribute.variation) {
+          attribute.variation = true;
+          productModified = true;
+        }
+
+        let selectedOption = attribute.options.find(
+          (o) => o === varAttr.option
         );
+        if (selectedOption === undefined) {
+          attribute.options.push(varAttr.option);
+          productModified = true;
+        }
       }
-    });
+    }
+
+    if (productModified) {
+      VegevekService.updateProductAttributes({
+        id: product.id,
+        attributes: product.attributes,
+        type: product.type,
+      }).then((product) => {
+        VegevekService.updateProductVariation(
+          this.props.productId,
+          changedVariation
+        ).then((variation) => {
+          let elementIndex = this.state.variations.findIndex(
+            (v) => v.id === variation.id
+          );
+          if (elementIndex !== -1) {
+            this.setState((prev) => {
+              const variations = [...prev.variations];
+              variations[elementIndex] = variation;
+              return { variations: variations };
+            });
+          } else {
+            alert(
+              "Błąd: nie znalezion modyfikowanej wariacji, id: " + variation.id
+            );
+          }
+        });
+      });
+    } else {
+      VegevekService.updateProductVariation(
+        this.props.productId,
+        changedVariation
+      ).then((variation) => {
+        let elementIndex = this.state.variations.findIndex(
+          (v) => v.id === variation.id
+        );
+        if (elementIndex !== -1) {
+          this.setState((prev) => {
+            const variations = [...prev.variations];
+            variations[elementIndex] = variation;
+            return { variations: variations };
+          });
+        } else {
+          alert(
+            "Błąd: nie znalezion modyfikowanej wariacji, id: " + variation.id
+          );
+        }
+      });
+    }
   };
   handleCurrencyFetch() {
     VegevekService.getCurrentCurrency().then((currentCurrency) => {
