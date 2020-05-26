@@ -339,7 +339,34 @@ class ProductVariations extends React.Component {
       </div>
     );
   };
-  
+  fetchRedirect = () => {
+    const username = "asia";
+    const password = "ECXo IRKT VONb q3Es T4vy 1wtS";
+    const token = Buffer.from(`${username}:${password}`, "utf8").toString(
+      "base64"
+    );
+    const url = "http://localhost/wordpress/wp-json/redirection/v1/redirect";
+    fetch(url, {
+      method: "GET",
+      // withCredentials: true,
+      // credentials: "include",
+      // crossDomain: true,
+      // mode: "no-cors",
+      headers: {
+        Authorization: `Basic ${token}`,
+       
+        // 'X-FP-API-KEY': 'iphone', //it can be iPhone or your any other attribute
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseData) => {
+        console.log(responseData);
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+  };
 
   componentDidMount() {
     this.handleCurrencyFetch();
