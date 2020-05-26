@@ -339,6 +339,7 @@ class ProductVariations extends React.Component {
       </div>
     );
   };
+  
 
   componentDidMount() {
     this.handleCurrencyFetch();
