@@ -13,6 +13,10 @@ class ProductVariations extends React.Component {
       attributes: this.props.attributes,
       loading: false,
       currentCurrency: "",
+      valueInput: "",
+      variationId: "",
+      variationRedirects: [],
+      isEditRedirect: false,
     };
   }
 
@@ -232,6 +236,69 @@ class ProductVariations extends React.Component {
       });
     }
   };
+
+  handleEditRedirect = () => {
+    this.setState({ isEditRedirect: true });
+  };
+
+  handleInputOnChange = (e, variationId) => {
+    this.setState({ valueInput: e.target.value, variationId: variationId });
+  };
+
+  handleInputSubmit = (e) => {
+    e.preventDefault();
+    this.postData().then(() => this.fetchRedirect());
+  };
+
+  handleInputOnChangeEdit = (e, variationId) => {
+    this.setState({ valueInput: e.target.value, variationId: variationId });
+  };
+
+  handleInputSubmitEdit = (e) => {
+    e.preventDefault();
+    this.editData().then(() => this.fetchRedirect());
+  };
+
+  redirect = (variationId) => {
+    if (this.state.variationRedirects) {
+      let matchingRedirect = this.state.variationRedirects.find(
+        (vr) =>
+          vr.action_data.url ===
+          `http://localhost/wordpress/?add-to-cart=${variationId}`
+      );
+
+      if (matchingRedirect != null) {
+        return (
+          <>
+            {!this.state.isEditRedirect ? (
+              <>
+                <p>{matchingRedirect.url}</p>
+                <button onClick={this.handleEditRedirect}>edit</button>
+              </>
+            ) : (
+              <form onSubmit={this.handleInputSubmit}>
+                <input
+                  placeholder=" enter qr"
+                  onChange={(e) => this.handleInputOnChange(e, variationId)}
+                />
+                <input type="submit" value="send" />
+              </form>
+            )}
+          </>
+        );
+      } else {
+        return (
+          <form onSubmit={this.handleInputSubmit}>
+            <input
+              placeholder=" enter qr"
+              onChange={(e) => this.handleInputOnChange(e, variationId)}
+            />
+            <input type="submit" value="send" />
+          </form>
+        );
+      }
+    }
+  };
   handleCurrencyFetch() {
     VegevekService.getCurrentCurrency().then((currentCurrency) => {
       this.setState({ currentCurrency });
@@ -258,6 +325,17 @@ class ProductVariations extends React.Component {
         />
         <div className="content" style={{ padding: 0 }}>
           <p style={this.p_variationId}>id: {variation.id}</p>
+          {/* {this.state.isEditRedirect ? (
+            <form onSubmit={this.handleInputSubmitEdit}>
+              <input
+                placeholder=" enter qr"
+                onChange={(e) => this.handleInputOnChangeEdit(e, variation.id)}
+              />
+              <input type="submit" value="send" />
+            </form>
+          ) : null} */}
+
+          {this.redirect(variation.id)}
 
           <div style={this.container_price}>
             <div className="ui mini horizontal statistic" style={{ margin: 0 }}>
@@ -339,6 +417,7 @@ class ProductVariations extends React.Component {
       </div>
     );
   };
+
   fetchRedirect = () => {
     const username = "asia";
     const password = "ECXo IRKT VONb q3Es T4vy 1wtS";
@@ -348,16 +427,55 @@ class ProductVariations extends React.Component {
     const url = "http://localhost/wordpress/wp-json/redirection/v1/redirect";
     fetch(url, {
       method: "GET",
-      // withCredentials: true,
-      // credentials: "include",
-      // crossDomain: true,
-      // mode: "no-cors",
       headers: {
         Authorization: `Basic ${token}`,
-       
-        // 'X-FP-API-KEY': 'iphone', //it can be iPhone or your any other attribute
         "Content-Type": "application/json",
       },
+    })
+      .then((response) => response.json())
+      .then((responseData) => {
+        console.log(responseData.items);
+        this.setState({ variationRedirects: responseData.items });
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+  };
+
+  async postData(
+    url = "http://localhost/wordpress/wp-json/redirection/v1/redirect",
+    data = {
+      url: `/?${this.state.valueInput}`,
+      match_url: "/",
+      match_data: {
+        source: {
+          flag_query: "exact",
+          flag_case: false,
+          flag_trailing: false,
+          flag_regex: false,
+        },
+      },
+      action_code: 301,
+      action_type: "url",
+      action_data: {
+        url: `http://localhost/wordpress/?add-to-cart=${this.state.variationId}`,
+      },
+      match_type: "url",
+      group_id: 3,
+    }
+  ) {
+    const username = "asia";
+    const password = "ECXo IRKT VONb q3Es T4vy 1wtS";
+    const token = Buffer.from(`${username}:${password}`, "utf8").toString(
+      "base64"
+    );
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
     })
       .then((response) => response.json())
       .then((responseData) => {
@@ -366,10 +484,58 @@ class ProductVariations extends React.Component {
       .catch((err) => {
         console.log("err", err);
       });
-  };
+    console.log(data);
+  }
+
+  async editData(
+    url = `http://localhost/wordpress/wp-json/redirection/v1/redirect/:${this.state.variationId}`,
+    data = {
+      url: `/?${this.state.valueInput}`,
+      match_url: "/",
+      match_data: {
+        source: {
+          flag_query: "exact",
+          flag_case: false,
+          flag_trailing: false,
+          flag_regex: false,
+        },
+      },
+      action_code: 301,
+      action_type: "url",
+      action_data: {
+        url: `http://localhost/wordpress/?add-to-cart=${this.state.variationId}`,
+      },
+      match_type: "url",
+      group_id: 3,
+    }
+  ) {
+    const username = "asia";
+    const password = "ECXo IRKT VONb q3Es T4vy 1wtS";
+    const token = Buffer.from(`${username}:${password}`, "utf8").toString(
+      "base64"
+    );
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((responseData) => {
+        console.log(responseData);
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+    console.log(data);
+  }
 
   componentDidMount() {
     this.handleCurrencyFetch();
+    this.fetchRedirect();
   }
 
   render() {
