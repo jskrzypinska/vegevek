@@ -3,9 +3,7 @@ import React from "react";
 import Product from "./Product";
 
 export class ProductList extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+  
 
   handleAddProductVariation = (
     productId,

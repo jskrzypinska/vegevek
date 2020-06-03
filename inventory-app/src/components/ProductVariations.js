@@ -1,6 +1,7 @@
 import React from "react";
 import ModalEditVariation from "./ModalEditVariation";
 import VegevekService from "../vegevekService";
+import { Button, Modal } from "semantic-ui-react";
 
 class ProductVariations extends React.Component {
   constructor(props) {
@@ -13,10 +14,11 @@ class ProductVariations extends React.Component {
       attributes: this.props.attributes,
       loading: false,
       currentCurrency: "",
-      valueInput: "",
-      variationId: "",
       variationRedirects: [],
-      isEditRedirect: false,
+      activeRedirects: [],
+      open: false,
+      alreadyExisting: false,
+      existingRedirectVariation: null,
     };
   }
 
@@ -72,6 +74,9 @@ class ProductVariations extends React.Component {
     height: 40,
     width: 70,
   };
+
+  open = () => this.setState({ open: true, alreadyExisting: false });
+  close = () => this.setState({ open: false, alreadyExisting: false });
 
   handleAddVariation(variationId) {
     this.setState({ loading: true }, () => {
@@ -237,63 +242,139 @@ class ProductVariations extends React.Component {
     }
   };
 
-  handleEditRedirect = () => {
-    this.setState({ isEditRedirect: true });
+  handleVariationRedirectChange = (e, variationId) => {
+    let elementIndex = this.state.variationRedirects.findIndex(
+      (vr) => vr.variationId === variationId
+    );
+
+    if (elementIndex !== -1) {
+      let vr = this.state.variationRedirects[elementIndex];
+      vr.redirect.url = e.target.value;
+      this.setState((prev) => {
+        const vrs = [...prev.variationRedirects];
+        vrs[elementIndex] = vr;
+        return { variationRedirects: vrs };
+      });
+    } else {
+      let vr = {
+        variationId: variationId,
+        redirect: {
+          url: e.target.value,
+        },
+      };
+      this.setState((prev) => {
+        const vrs = [...prev.variationRedirects];
+        vrs.push(vr);
+        return { variationRedirects: vrs };
+      });
+    }
   };
 
-  handleInputOnChange = (e, variationId) => {
-    this.setState({ valueInput: e.target.value, variationId: variationId });
-  };
-
-  handleInputSubmit = (e) => {
+  handleRedirectSave = (e, variationId) => {
     e.preventDefault();
-    this.postData().then(() => this.fetchRedirect());
-  };
 
-  handleInputOnChangeEdit = (e, variationId) => {
-    this.setState({ valueInput: e.target.value, variationId: variationId });
-  };
+    let elementIndex = this.state.variationRedirects.findIndex(
+      (vr) => vr.variationId === variationId
+    );
 
-  handleInputSubmitEdit = (e) => {
-    e.preventDefault();
-    this.editData().then(() => this.fetchRedirect());
-  };
+    if (elementIndex >= 0) {
+      let vr = this.state.variationRedirects[elementIndex];
 
-  redirect = (variationId) => {
-    if (this.state.variationRedirects) {
-      let matchingRedirect = this.state.variationRedirects.find(
-        (vr) =>
-          vr.action_data.url ===
-          `http://localhost/wordpress/?add-to-cart=${variationId}`
+      // let alreadyExisting = this.state.activeRedirects.find(
+      //   (ar) => ar.id !== vr.redirect.id && ar.url === vr.redirect.url
+      // );
+
+      let alreadyExisting = this.state.variationRedirects.find(
+        (v) =>
+          v.variationId !== vr.variationId && v.redirect.url === vr.redirect.url
       );
 
-      if (matchingRedirect != null) {
+      if (alreadyExisting) {
+        this.setState({
+          alreadyExisting: true,
+          existingRedirectVariation: alreadyExisting,
+        });
+      }
+
+      if (typeof alreadyExisting === "undefined") {
+        if (vr.redirect.id) {
+          this.editData(vr).then(() => this.fetchRedirect());
+        } else {
+          this.postData(vr).then(() => this.fetchRedirect());
+        }
+      }
+    } else {
+      console.log("Error: redirect not created, variation Id: ", variationId);
+    }
+  };
+
+  redirect = (variationId, variation) => {
+    if (this.state.variationRedirects) {
+      let variationRedirect = this.state.variationRedirects.find(
+        (vr) => vr.variationId === variationId
+      );
+
+      if (variationRedirect != null && variationRedirect.redirect.id != null) {
         return (
           <>
-            {!this.state.isEditRedirect ? (
-              <>
-                <p>{matchingRedirect.url}</p>
-                <button onClick={this.handleEditRedirect}>edit</button>
-              </>
-            ) : (
-              <form onSubmit={this.handleInputSubmit}>
-                <input
-                  placeholder=" enter qr"
-                  onChange={(e) => this.handleInputOnChange(e, variationId)}
-                />
-                <input type="submit" value="send" />
-              </form>
-            )}
+            <form onSubmit={(e) => this.handleRedirectSave(e, variationId)}>
+              <input
+                value={variationRedirect.redirect.url}
+                onChange={(e) =>
+                  this.handleVariationRedirectChange(e, variationId)
+                }
+                style={{ maxWidth: "35%" }}
+              />
+              <input type="submit" value="update" onClick={this.open} />
+
+              {this.state.alreadyExisting ? (
+                <Modal open={this.state.open} onClose={this.close}>
+                  <Modal.Content>
+                    <h3>
+                      This redirection already exists{" "}
+                      {this.state.existingRedirectVariation.variationId} for: in
+                      category:
+                    </h3>
+                  </Modal.Content>
+                  <Modal.Actions>
+                    <Button color="green" onClick={this.close}>
+                      OK
+                    </Button>
+                  </Modal.Actions>
+                </Modal>
+              ) : null}
+            </form>
           </>
         );
       } else {
         return (
-          <form onSubmit={this.handleInputSubmit}>
+          <form onSubmit={(e) => this.handleRedirectSave(e, variationId)}>
             <input
-              placeholder=" enter qr"
-              onChange={(e) => this.handleInputOnChange(e, variationId)}
+              placeholder="enter qr `ex. /?234`"
+              onChange={(e) =>
+                this.handleVariationRedirectChange(e, variationId)
+              }
+              style={{ maxWidth: "35%" }}
             />
-            <input type="submit" value="send" />
+
+            <input type="submit" value="create" onClick={this.open} />
+
+            {this.state.alreadyExisting ? (
+              <Modal open={this.state.open} onClose={this.close}>
+                <Modal.Content>
+                  <h3>
+                    This redirection already exists{" "}
+                    {this.state.existingRedirectVariation.variationId} for: in
+                    category:
+                  </h3>
+                </Modal.Content>
+                <Modal.Actions>
+                  <Button color="green" onClick={this.close}>
+                    OK
+                  </Button>
+                </Modal.Actions>
+              </Modal>
+            ) : null}
           </form>
         );
       }
@@ -325,17 +406,8 @@ class ProductVariations extends React.Component {
         />
         <div className="content" style={{ padding: 0 }}>
           <p style={this.p_variationId}>id: {variation.id}</p>
-          {/* {this.state.isEditRedirect ? (
-            <form onSubmit={this.handleInputSubmitEdit}>
-              <input
-                placeholder=" enter qr"
-                onChange={(e) => this.handleInputOnChangeEdit(e, variation.id)}
-              />
-              <input type="submit" value="send" />
-            </form>
-          ) : null} */}
 
-          {this.redirect(variation.id)}
+          {this.redirect(variation.id, variation)}
 
           <div style={this.container_price}>
             <div className="ui mini horizontal statistic" style={{ margin: 0 }}>
@@ -435,17 +507,35 @@ class ProductVariations extends React.Component {
       .then((response) => response.json())
       .then((responseData) => {
         console.log(responseData.items);
-        this.setState({ variationRedirects: responseData.items });
+        let variationRedirects = [];
+        for (let redirect of responseData.items) {
+          let matchingVariation = this.state.variations.find(
+            (variation) =>
+              redirect.action_data.url ===
+              `http://localhost/wordpress/?add-to-cart=${variation.id}`
+          );
+          // console.log("matchingVariation", matchingVariation);
+          if (matchingVariation)
+            variationRedirects.push({
+              variationId: matchingVariation.id,
+              redirect: redirect,
+            });
+        }
+
+        this.setState({
+          variationRedirects: variationRedirects,
+          activeRedirects: responseData.items,
+        });
       })
       .catch((err) => {
         console.log("err", err);
       });
   };
 
-  async postData(
-    url = "http://localhost/wordpress/wp-json/redirection/v1/redirect",
-    data = {
-      url: `/?${this.state.valueInput}`,
+  async postData(variationRedirect) {
+    let url = "http://localhost/wordpress/wp-json/redirection/v1/redirect";
+    let data = {
+      url: variationRedirect.redirect.url,
       match_url: "/",
       match_data: {
         source: {
@@ -458,18 +548,18 @@ class ProductVariations extends React.Component {
       action_code: 301,
       action_type: "url",
       action_data: {
-        url: `http://localhost/wordpress/?add-to-cart=${this.state.variationId}`,
+        url: `http://localhost/wordpress/?add-to-cart=${variationRedirect.variationId}`,
       },
       match_type: "url",
       group_id: 3,
-    }
-  ) {
+    };
+
     const username = "asia";
     const password = "ECXo IRKT VONb q3Es T4vy 1wtS";
     const token = Buffer.from(`${username}:${password}`, "utf8").toString(
       "base64"
     );
-    const response = await fetch(url, {
+    await fetch(url, {
       method: "POST",
       headers: {
         Authorization: `Basic ${token}`,
@@ -487,35 +577,35 @@ class ProductVariations extends React.Component {
     console.log(data);
   }
 
-  async editData(
-    url = `http://localhost/wordpress/wp-json/redirection/v1/redirect/:${this.state.variationId}`,
-    data = {
-      url: `/?${this.state.valueInput}`,
-      match_url: "/",
-      match_data: {
-        source: {
-          flag_query: "exact",
-          flag_case: false,
-          flag_trailing: false,
-          flag_regex: false,
+  async editData(variationRedirect) {
+    let url = `http://localhost/wordpress/wp-json/redirection/v1/redirect/${variationRedirect.redirect.id}`,
+      data = {
+        url: variationRedirect.redirect.url,
+        match_url: "/",
+        match_data: {
+          source: {
+            flag_query: "exact",
+            flag_case: false,
+            flag_trailing: false,
+            flag_regex: false,
+          },
         },
-      },
-      action_code: 301,
-      action_type: "url",
-      action_data: {
-        url: `http://localhost/wordpress/?add-to-cart=${this.state.variationId}`,
-      },
-      match_type: "url",
-      group_id: 3,
-    }
-  ) {
+        action_code: 301,
+        action_type: "url",
+        action_data: {
+          url: `http://localhost/wordpress/?add-to-cart=${variationRedirect.variationId}`,
+        },
+        match_type: "url",
+        group_id: 3,
+      };
+
     const username = "asia";
     const password = "ECXo IRKT VONb q3Es T4vy 1wtS";
     const token = Buffer.from(`${username}:${password}`, "utf8").toString(
       "base64"
     );
 
-    const response = await fetch(url, {
+    await fetch(url, {
       method: "POST",
       headers: {
         Authorization: `Basic ${token}`,
